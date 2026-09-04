@@ -1,0 +1,22 @@
+(function () {
+  const projects = [
+    { id: 'verification', title: 'Verification Studio', type: 'Interactive practice', year: '2026', image: 'assets/activity-previews/verification-studio.png', imageAlt: 'Verification Studio activity preview', summary: 'A guided learning experience that helps learners compare signals and reach a confident decision.', detail: 'A multi-step practice experience with progressive disclosure, guided exploration, decision points, feedback, and completion gating.', gallery: ['assets/activity-previews/verification-studio.png', 'assets/activity-previews/comparison.png'] },
+    { id: 'interface', title: 'Guided Interface Walkthrough', type: 'System simulation', year: '2026', image: 'assets/activity-previews/interface-walkthrough.png', imageAlt: 'Guided interface walkthrough preview', summary: 'A realistic software practice environment with hotspots and step-by-step guidance.', detail: 'A public-safe system simulation showing structured navigation, clickable hotspots, visited states, and a clear practice sequence.', gallery: ['assets/activity-previews/interface-walkthrough.png', 'assets/activity-previews/guided-scenario.png'] },
+    { id: 'branching', title: 'Branching Decision Scenario', type: 'Scenario learning', year: '2026', image: 'assets/activity-previews/branching-decision.png', imageAlt: 'Branching decision scenario preview', summary: 'A decision-based scenario where learner choices lead to contextual feedback.', detail: 'A scenario framework designed around realistic choices, balanced options, corrective feedback, and safe retry behavior.', gallery: ['assets/activity-previews/branching-decision.png', 'assets/activity-previews/escalation-reveal.png'] },
+    { id: 'roleplay', title: 'Full Role-Play Presentation', type: 'Scenario learning', year: '2026', image: 'assets/activity-previews/role-play.png', imageAlt: 'Full role-play conversation activity preview', summary: 'A conversation practice experience with dialogue, coaching, and reflection.', detail: 'A complete role-play structure combining staged dialogue, coach guidance, learner reflection, and a controlled progression.', gallery: ['assets/activity-previews/role-play.png', 'assets/activity-previews/guided-scenario.png'] },
+    { id: 'sorting', title: 'Sorting Knowledge Check', type: 'Interactive practice', year: '2026', image: 'assets/activity-previews/sorting-check.png', imageAlt: 'Sorting knowledge check preview', summary: 'A hands-on classification activity with immediate, explanatory feedback.', detail: 'A reusable sorting pattern with clear categories, keyboard-friendly controls, retry support, and completion signaling.', gallery: ['assets/activity-previews/sorting-check.png', 'assets/activity-previews/single-choice-check.png'] },
+    { id: 'matching', title: 'Matching Activity', type: 'Interactive practice', year: '2026', image: 'assets/activity-previews/matching-activity.png', imageAlt: 'Matching activity preview', summary: 'A visual matching interaction connecting actions, reasons, and outcomes.', detail: 'A flexible matching activity designed for process steps, concepts, terminology, and decision reasoning.', gallery: ['assets/activity-previews/matching-activity.png', 'assets/activity-previews/comparison.png'] }
+  ];
+  window.PORTFOLIO_PROJECTS = projects;
+  window.ACTIVITY_GALLERY = [
+    { title: 'Guided Scenario Presentation', type: 'Coached walkthrough', image: 'assets/activity-previews/guided-scenario.png' },
+    { title: 'Two-Category Comparison', type: 'Decision support', image: 'assets/activity-previews/comparison.png' },
+    { title: 'Escalation Reveal', type: 'Gated reveal', image: 'assets/activity-previews/escalation-reveal.png' },
+    { title: 'Single-Choice Knowledge Check', type: 'Assessment', image: 'assets/activity-previews/single-choice-check.png' }
+  ];
+  window.SHOWCASE_ITEMS = [
+    { id: 'evidence', title: 'Evidence Review Challenge', eyebrow: '01 / Review practice', src: 'showcase/evidence-review/index.html', note: 'Inspect a fictional record set, track what you have visited, and make a final call.' },
+    { id: 'simulation', title: 'Guided System Simulation', eyebrow: '02 / System practice', src: 'showcase/system-simulation/index.html', note: 'Practice a fictional form workflow with review, retry, and completion states.' }
+  ];
+  window.PORTFOLIO_UI = { viewProject: 'View project', activityPreview: 'activity preview', screen: 'screen', expandImage: 'Expand image', closeImage: 'Close enlarged image', imageDialog: 'Enlarged image' };
+})();
