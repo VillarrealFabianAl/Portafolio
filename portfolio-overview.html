@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fabian — Portfolio overview</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    @media print { body { color: #000; } a { color: #000; } .overview-actions { display: none; } }
+    .overview { max-width: 760px; margin: auto; padding: 72px 28px; }
+    .overview h1 { max-width: 700px; font-size: clamp(42px, 7vw, 72px); line-height: 1.02; letter-spacing: -.05em; margin: 0 0 20px; }
+    .overview h2 { margin: 46px 0 8px; color: var(--indigo); }
+    .overview p, .overview li { color: var(--muted); font-size: 18px; }
+    .overview ul { padding-left: 22px; }
+    .overview-actions { margin-top: 46px; display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <main class="overview">
+    <p class="kicker">Portfolio overview</p>
+    <h1>Fabian — Learning Content Developer</h1>
+    <p class="lede">I turn complex workflows into clear, interactive learning for practical training, system simulations, scenario practice, and custom learning tools.</p>
+    <h2>Selected examples</h2>
+    <ul><li>Evidence Review Challenge — guided scenario practice.</li><li>Guided System Simulation — fictional interface practice.</li></ul>
+    <h2>Toolkit</h2>
+    <p>Rise 360 · Storyline 360 · HTML / CSS / JavaScript · Canva · accessibility and QA.</p>
+    <h2>Privacy note</h2>
+    <p>This public portfolio uses fictional interface details and original, locally authored media. No client material, personal learner data, or original source narration is included.</p>
+    <h2>Contact and CVs</h2>
+    <p>Email: <a href="mailto:fabian.villa.al@outlook.com">fabian.villa.al@outlook.com</a>. Connect on <a href="https://www.linkedin.com/in/fabian-villarreal-074626154/">LinkedIn</a>, or download the <a href="assets/Fabian_Alvarado_CV_English.pdf">English CV</a> and <a href="assets/Fabian_Alvarado_CV_Espanol.pdf">Spanish CV</a>.</p>
+    <div class="overview-actions"><a class="text-link" href="index.html">Back to portfolio ↗</a><button class="button" type="button" onclick="window.print()">Print overview</button></div>
+  </main>
+</body>
+</html>
