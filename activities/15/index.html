@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Interactive presentation: Ineligible labels — escalate." />
+    <title>Special Request Handoff</title>
+    <style>
+      :root {
+        --ink: #17143d;
+        --indigo-950: #20134f;
+        --indigo-800: #352080;
+        --indigo-650: #5840b7;
+        --indigo-300: #beb4f3;
+        --indigo-150: #e9e5ff;
+        --indigo-075: #f7f6ff;
+        --white: #ffffff;
+        --muted: #5f5c7b;
+        --line: #dcd7f8;
+        --shadow: 0 18px 44px rgba(33, 19, 79, 0.14);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { background: var(--indigo-075); }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 10% 0%, rgba(190, 180, 243, 0.58), transparent 29rem),
+          radial-gradient(circle at 92% 24%, rgba(233, 229, 255, 0.9), transparent 26rem),
+          var(--indigo-075);
+        color: var(--ink);
+        font-family: Calibri, Candara, "Segoe UI", sans-serif;
+      }
+
+      button { font: inherit; }
+
+      .presentation {
+        width: min(1440px, calc(100% - 32px));
+        margin: 24px auto;
+        padding: clamp(20px, 3vw, 42px);
+        border: 1px solid rgba(190, 180, 243, 0.72);
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.91);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow,
+      .kicker,
+      .label-type,
+      .card-number {
+        margin: 0;
+        color: var(--indigo-650);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        color: var(--indigo-950);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+      }
+
+      h1 {
+        max-width: 900px;
+        font-size: clamp(2rem, 4.2vw, 3.65rem);
+        line-height: 1.01;
+        letter-spacing: -0.045em;
+      }
+
+      .intro {
+        max-width: 900px;
+        margin: 16px 0 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.65vw, 1.18rem);
+        line-height: 1.5;
+      }
+
+      .interaction-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
+        gap: clamp(22px, 3vw, 42px);
+        margin-top: 24px;
+      }
+
+      .label-area {
+        min-width: 0;
+      }
+
+      .label-area-header { margin-bottom: 12px; }
+
+      h2 { font-size: clamp(1.25rem, 2vw, 1.6rem); }
+
+      .label-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .label-card {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        min-height: 104px;
+        padding: 16px;
+        border: 1.5px solid var(--line);
+        border-radius: 18px;
+        background: var(--white);
+        color: var(--ink);
+        text-align: left;
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+      }
+
+      .label-card:hover {
+        border-color: var(--indigo-650);
+        box-shadow: 0 10px 22px rgba(53, 32, 128, 0.12);
+        transform: translateY(-2px);
+      }
+
+      .label-card:nth-child(4n + 2),
+      .label-card:nth-child(4n + 3) {
+        background: var(--indigo-075);
+      }
+
+      .card-icon {
+        display: grid;
+        flex: 0 0 auto;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--indigo-150);
+        color: var(--indigo-800);
+        transition: background 180ms ease, color 180ms ease;
+      }
+
+      .card-copy { min-width: 0; }
+
+      .card-name {
+        display: block;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.15;
+      }
+
+      .card-subtitle {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.25;
+      }
+
+      .detail-panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        padding: clamp(20px, 2.2vw, 30px);
+        border: 1px solid var(--indigo-950);
+        border-radius: 24px;
+        background: linear-gradient(154deg, var(--indigo-950), #2c1b6c);
+        color: var(--white);
+        box-shadow: 0 16px 35px rgba(32, 19, 79, 0.2);
+      }
+
+      .detail-panel .kicker { color: var(--indigo-300); }
+
+      .detail-panel h2 {
+        margin-top: 9px;
+        color: var(--white);
+        font-size: clamp(1.4rem, 2.25vw, 1.9rem);
+        line-height: 1.12;
+      }
+
+      .detail-summary {
+        min-height: 76px;
+        margin: 13px 0 0;
+        color: #f5f3ff;
+        font-size: 1.05rem;
+        line-height: 1.45;
+      }
+
+      .required-path {
+        display: grid;
+        gap: 10px;
+        margin: 22px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .path-item {
+        display: grid;
+        grid-template-columns: 35px 1fr;
+        gap: 11px;
+        align-items: center;
+        padding: 11px 12px;
+        border: 1px solid rgba(233, 229, 255, 0.28);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--white);
+        font-weight: 700;
+        line-height: 1.25;
+      }
+
+      .response-details .path-item,
+      .response-details .detail-footer {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .response-details.is-revealing .path-item,
+      .response-details.is-revealing .detail-footer {
+        animation: step-reveal 680ms ease-out forwards;
+      }
+
+      .response-details.is-revealing .path-item:nth-child(1) { animation-delay: 180ms; }
+      .response-details.is-revealing .path-item:nth-child(2) { animation-delay: 1.08s; }
+      .response-details.is-revealing .path-item:nth-child(3) { animation-delay: 1.98s; }
+      .response-details.is-revealing .detail-footer { animation-delay: 2.88s; }
+
+      .path-index {
+        display: grid;
+        place-items: center;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: var(--white);
+        color: var(--indigo-950);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .detail-footer {
+        margin-top: auto;
+        padding-top: 22px;
+      }
+
+      .authority-note {
+        margin: 13px 0 0;
+        color: var(--indigo-150);
+        font-size: 0.88rem;
+        line-height: 1.36;
+      }
+
+      .authority-note strong { color: var(--white); }
+
+      .decision-note {
+        margin: 0;
+        padding: 13px 14px;
+        border-left: 4px solid var(--indigo-300);
+        border-radius: 0 12px 12px 0;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--white);
+        font-size: 0.97rem;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      .response-trigger {
+        width: 100%;
+        margin-top: 24px;
+        padding: 13px 16px;
+        border: 1px solid var(--white);
+        border-radius: 14px;
+        background: var(--white);
+        color: var(--indigo-950);
+        cursor: pointer;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.94rem;
+        font-weight: 800;
+        text-align: center;
+        transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+      }
+
+      .response-trigger:hover,
+      .response-trigger:focus-visible {
+        background: var(--indigo-150);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+        outline: 3px solid var(--indigo-300);
+        outline-offset: 3px;
+        transform: translateY(-1px);
+      }
+
+      .response-details { animation: reveal 320ms ease-out; }
+
+      .response-details[hidden] { display: none; }
+
+      .continue-wrap {
+        margin-top: 18px;
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .continue-wrap[hidden] { display: none; }
+
+      .continue-wrap.is-ready { animation: step-reveal 520ms ease-out forwards; }
+
+      .continue-button {
+        width: 100%;
+        padding: 13px 16px;
+        border: 1px solid var(--indigo-300);
+        border-radius: 14px;
+        background: var(--indigo-650);
+        color: var(--white);
+        cursor: pointer;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.94rem;
+        font-weight: 800;
+        transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+      }
+
+      .continue-button:hover,
+      .continue-button:focus-visible {
+        background: var(--white);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+        color: var(--indigo-950);
+        outline: 3px solid var(--indigo-300);
+        outline-offset: 3px;
+        transform: translateY(-1px);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @keyframes reveal {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes step-reveal {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 860px) {
+        .interaction-grid { grid-template-columns: 1fr; }
+        .detail-panel { min-height: auto; }
+      }
+
+      @media (max-width: 620px) {
+        .presentation {
+          width: min(100% - 18px, 1440px);
+          margin: 9px auto;
+          padding: 22px 17px;
+          border-radius: 20px;
+        }
+
+        .label-grid { grid-template-columns: 1fr; }
+        .label-card { min-height: 88px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-delay: 0ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  <style id="course-font-standard">html,body,button,input,select,textarea{font-family:Calibri,Arial,sans-serif}h1,h2,h3,h4,h5,h6,[role="heading"],.title,.headline,[class*="-title"],[class*="_title"],.question-prompt,.result-headline{font-family:Arial,Arial,sans-serif!important}</style></head>
+  <body>
+    <main class="presentation" aria-labelledby="presentation-title">
+      <p class="eyebrow">Booking Support</p>
+      <h1 id="presentation-title">Ineligible labels — escalate</h1>
+      <p class="intro">Use the most recent label in Request Board. If it is ineligible or unrecognized, event coordinator makes the booking update decision.</p>
+
+      <section class="interaction-grid" aria-label="Ineligible labels interaction">
+        <div class="label-area">
+          <div class="label-area-header">
+            <h2>Ineligible labels and sublabels</h2>
+          </div>
+
+          <div class="label-grid" aria-label="Labels that require escalation">
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 5.7v5.6c0 5.3 3.6 9.9 8.5 10.7 4.9-.8 8.5-5.4 8.5-10.7V5.7L12 2Z" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg></span>
+              <span class="card-copy"><span class="card-name">Access Request</span><span class="card-subtitle">N/A</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+              <span class="card-copy"><span class="card-name">Room Conflict</span><span class="card-subtitle">Any</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+              <span class="card-copy"><span class="card-name">Schedule Conflict</span><span class="card-subtitle">Any</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+              <span class="card-copy"><span class="card-name">Equipment Request</span><span class="card-subtitle">Any</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M9 9h.01M15 9h.01M8 15h8" /></svg></span>
+              <span class="card-copy"><span class="card-name">Venue Change</span><span class="card-subtitle">N/A</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></svg></span>
+              <span class="card-copy"><span class="card-name">SpecialRequest</span><span class="card-subtitle">Room / Equipment / Scheduling / Accessibility</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /><path d="M18 4v4M16 6h4" /></svg></span>
+              <span class="card-copy"><span class="card-name">Booking Detail</span><span class="card-subtitle">Room_change / Schedule_change / Access_request</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="2" /></svg></span>
+              <span class="card-copy"><span class="card-name">VenueRequest</span><span class="card-subtitle">Any</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4" /><path d="M12 17h.01" /><path d="M10.3 3.4 2.8 17a2 2 0 0 0 1.75 3h14.9a2 2 0 0 0 1.75-3L13.7 3.4a2 2 0 0 0-3.4 0Z" /></svg></span>
+              <span class="card-copy"><span class="card-name">OtherRequest</span><span class="card-subtitle">N/A</span></span>
+            </div>
+
+            <div class="label-card">
+              <span class="card-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.6 9a2.6 2.6 0 1 1 4.15 2.1c-.86.64-1.75 1.15-1.75 2.4" /><path d="M12 17h.01" /></svg></span>
+              <span class="card-copy"><span class="card-name">Other labels/fallback</span><span class="card-subtitle">Any</span></span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="detail-panel" aria-live="polite" aria-atomic="true">
+          <p class="kicker">Required actions</p>
+          <h2>Escalate to event coordinator</h2>
+          <p class="detail-summary">This path applies to every label in the matrix.</p>
+          <button class="response-trigger" id="responseTrigger" type="button" aria-expanded="false" aria-controls="responseDetails">Reveal the shared escalation path</button>
+          <div class="response-details" id="responseDetails" hidden>
+            <ol class="required-path">
+              <li class="path-item" aria-hidden="true"><span class="path-index">1</span><span>Collect Brief and record the outcome</span></li>
+              <li class="path-item" aria-hidden="true"><span class="path-index">2</span><span>Send or review the Checklist Desk Checklist request</span></li>
+              <li class="path-item" aria-hidden="true"><span class="path-index">3</span><span>Escalate through the Booking Support path</span></li>
+            </ol>
+            <div class="detail-footer" aria-hidden="true">
+              <p class="decision-note">Collect all available verification signals, including Brief and Checklist, and escalate to event coordinator—even when the participant passes the other verification steps.</p>
+              <p class="authority-note"><strong>Why event coordinator decides:</strong> Workshop Coordinators can read labels, but cannot relabel, block DemoReferences, or take the restrictive actions needed for these cases.</p>
+            </div>
+          </div>
+          <div class="continue-wrap" id="continueWrap" hidden>
+            <button class="continue-button" id="continueButton" type="button" disabled>Continue</button>
+          </div>
+        </aside>
+      </section>
+
+      <p class="sr-only" id="activityStatus" aria-live="polite"></p>
+    </main>
+
+    <script>
+      (function () {
+        const responseTrigger = document.getElementById('responseTrigger');
+        const responseDetails = document.getElementById('responseDetails');
+        const pathItems = Array.from(responseDetails.querySelectorAll('.path-item'));
+        const detailFooter = responseDetails.querySelector('.detail-footer');
+        const continueWrap = document.getElementById('continueWrap');
+        const continueButton = document.getElementById('continueButton');
+        const activityStatus = document.getElementById('activityStatus');
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const timings = reduceMotion ? { step: 0, footer: 0, continue: 0 } : { step: 900, footer: 2880, continue: 3650 };
+        let revealed = false;
+        let completed = false;
+
+        responseTrigger.addEventListener('click', () => {
+          if (revealed) return;
+          revealed = true;
+          responseDetails.hidden = false;
+          responseTrigger.hidden = true;
+          responseTrigger.setAttribute('aria-expanded', 'true');
+          responseDetails.classList.add('is-revealing');
+          activityStatus.textContent = 'The escalation path is appearing one step at a time.';
+
+          pathItems.forEach((item, index) => {
+            window.setTimeout(() => {
+              item.setAttribute('aria-hidden', 'false');
+              activityStatus.textContent = `Step ${index + 1} of 3 revealed.`;
+            }, index * timings.step);
+          });
+
+          window.setTimeout(() => {
+            detailFooter.setAttribute('aria-hidden', 'false');
+            activityStatus.textContent = 'Review the final guidance, then continue.';
+          }, timings.footer);
+
+          window.setTimeout(() => {
+            continueWrap.hidden = false;
+            continueWrap.classList.add('is-ready');
+            continueButton.disabled = false;
+            activityStatus.textContent = 'The escalation path has been reviewed. Continue is now available.';
+          }, timings.continue);
+        });
+
+        continueButton.addEventListener('click', () => {
+          if (completed) return;
+          completed = true;
+          continueButton.disabled = true;
+          continueButton.textContent = 'Review complete';
+          activityStatus.textContent = 'Review complete. You can continue in the course.';
+          window.parent.postMessage({ type: 'complete' }, '*');
+        });
+      })();
+    </script>
+  </body>
+</html>

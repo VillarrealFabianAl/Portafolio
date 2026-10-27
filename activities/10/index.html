@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Update Role-Play</title>
+    <link rel="stylesheet" href="styles.css" />
+  <style id="course-font-standard">html,body,button,input,select,textarea{font-family:Calibri,Arial,sans-serif}h1,h2,h3,h4,h5,h6,[role="heading"],.title,.headline,[class*="-title"],[class*="_title"],.question-prompt,.result-headline{font-family:Arial,Arial,sans-serif!important}</style></head>
+  <body>
+    <main id="app">
+      <section id="intro" class="roleplay-screen roleplay-intro is-active">
+        <div class="intro-orbit orbit-one"></div>
+        <div class="intro-orbit orbit-two"></div>
+        <div class="intro-copy">
+          <p class="label">Taylor + Sam · Interactive call simulation</p>
+          <h1>A service conversation</h1>
+          <p>
+            Follow a six-part workshop support conversation. Listen, inspect the evidence, and choose the next action.
+          </p>
+          <button id="begin" class="primary">
+            Begin the call <span>→</span>
+          </button>
+        </div>
+        <div class="intro-route">
+          <span>Verify</span><i></i><span>Brief</span><i></i><span>Label</span
+          ><i></i><span>Checklist</span><i></i><span>update</span>
+        </div>
+      </section>
+
+      <section id="simulation" class="roleplay-screen rp-simulation" hidden>
+        <header class="sim-topbar">
+          <div>
+            <p class="label">Live participant call</p>
+            <h2 id="top-title">A service conversation</h2>
+          </div>
+          <div id="progress" class="progress" aria-label="Call progress"></div>
+          <p id="audio-status" class="audio-status" aria-live="polite"></p>
+        </header>
+        <div id="stage" class="stage phase-intro">
+          <div class="scene-intro">
+            <p id="scene-number" class="label"></p>
+            <h1 id="scene-heading"></h1>
+            <p id="scene-subheading"></p>
+          </div>
+          <div class="conversation-column">
+            <article class="bubble participant-bubble">
+              <div class="speaker"><span>M</span><b>Taylor · participant</b></div>
+              <p id="participant-line"></p>
+            </article>
+            <article class="bubble agent-bubble">
+              <div class="speaker">
+                <span>A</span><b>Sam · NorthstarDemo agent</b>
+              </div>
+              <p id="agent-line"></p>
+            </article>
+            <article class="bubble narrator-bubble">
+              <div class="speaker">
+                <span>N</span><b>Narrator · For the learner</b>
+              </div>
+              <p id="narrator-line"></p>
+            </article>
+          </div>
+          <article class="booking-view">
+            <div class="booking-head">
+              <div>
+                <p id="evidence-label" class="label"></p>
+                <h3 id="evidence-title"></h3>
+              </div>
+              <button id="expand" aria-label="Expand current evidence">
+                Expand ↗
+              </button>
+            </div>
+            <div id="evidence-frame" class="evidence-frame">
+              <img id="evidence-image" alt="" />
+              <div id="watermark"></div>
+              <div id="callout" class="callout"></div>
+            </div>
+            <p id="evidence-note"></p>
+          </article>
+          <section class="decision-panel">
+            <div>
+              <p class="label">Your decision</p>
+              <h3>Choose the next agent action</h3>
+            </div>
+            <div id="choices" class="choices"></div>
+            <p id="feedback" hidden></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="outro" class="roleplay-screen roleplay-outro" hidden>
+        <div class="outro-ring"></div>
+        <div class="outro-copy">
+          <p class="label">Call complete</p>
+          <h1>The booking update is complete.</h1>
+          <p>
+            The session preference was confirmed, the booking summary was updated, and the participant received the new details.
+          </p>
+          <div id="outro-dialogue" class="outro-dialogue" aria-live="polite">
+            <p id="outro-Taylor" hidden></p>
+            <p id="outro-Sam" hidden></p>
+          </div>
+          <button id="replay" class="primary">
+            Replay role play <span>↻</span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <audio id="speech-player" preload="auto"></audio>
+    <div
+      id="modal"
+      class="modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-label="Expanded evidence screen"
+    >
+      <button id="close-modal" aria-label="Close expanded evidence">×</button
+      ><img id="modal-image" alt="" />
+      <p>Click outside the image or press Escape to close.</p>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Booking Status Walkthrough</title>
+  <style>
+    :root{
+      --ink:#10043c;
+      --ink-2:#241069;
+      --indigo:#4f46e5;
+      --indigo-2:#2b166d;
+      --blue:#56b4f7;
+      --lav:#f1f2ff;
+      --card:#ffffff;
+      --muted:#64748b;
+      --line:#dbe2f2;
+      --green:#10855b;
+      --amber:#a16207;
+      --red:#b42342;
+      --shadow:0 18px 40px rgba(17,24,39,.16);
+      --soft-shadow:0 12px 28px rgba(34,19,108,.12);
+      --radius:26px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:#f7f8ff;color:var(--ink);}
+    /* Rise-safe sizing:
+       Do not depend on the iframe viewport height. Rise may start uploaded
+       web objects in a short frame; 100vh/max-height rules can shrink the
+       whole activity into a strip. Keep the document height natural so Rise
+       can read the real content height. */
+    html{height:auto;overflow-x:hidden;overflow-y:auto;}
+    body{min-height:720px;display:block;padding:0;overflow-x:hidden;overflow-y:auto;}
+    button{font:inherit}
+    .activity{
+      width:min(100%,1180px);
+      min-height:720px;
+      height:auto;
+      max-height:none;
+      overflow:visible;
+      margin:0 auto;
+      position:relative;
+      background:
+        radial-gradient(circle at 84% 14%, rgba(116,190,255,.55), transparent 20%),
+        radial-gradient(circle at 10% 88%, rgba(99,102,241,.26), transparent 28%),
+        linear-gradient(128deg,#110044 0%, #221079 38%, #4b8cec 100%);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      isolation:isolate;
+    }
+    .activity:before{
+      content:""; position:absolute; inset:0;
+      background-image:linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px, transparent 1px);
+      background-size:70px 70px;
+      opacity:.5;
+      pointer-events:none;
+    }
+    .activity:after{
+      content:""; position:absolute; width:300px;height:300px; border-radius:50%; left:-120px; top:60px; background:rgba(255,255,255,.12); pointer-events:none;
+    }
+    .content{position:relative;z-index:1;min-height:720px;padding:24px;display:grid;grid-template-rows:auto auto auto;gap:14px;}
+    .topbar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;width:max-content;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+    .eyebrow svg{width:16px;height:16px;}
+    h1{margin:12px 0 6px;color:white;font-size:clamp(28px,4vw,46px);line-height:.98;letter-spacing:-.04em;max-width:680px;}
+    .subtitle{margin:0;color:rgba(255,255,255,.88);font-size:clamp(13px,1.35vw,16px);line-height:1.45;max-width:710px;}
+    .progressCard{width:244px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.18);backdrop-filter:blur(12px);border-radius:22px;color:white;padding:16px 18px;box-shadow:0 10px 24px rgba(0,0,0,.1)}
+    .progressTop{display:flex;justify-content:space-between;font-weight:900;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+    .track{height:12px;background:rgba(255,255,255,.22);border-radius:999px;margin:12px 0 10px;overflow:hidden}.bar{height:100%;width:0%;border-radius:999px;background:#fff;transition:width .28s ease}.progressText{font-size:13px;font-weight:750;opacity:.95}
+    .main{display:grid;grid-template-columns:1.22fr .88fr;gap:18px;align-items:stretch;}
+    .visualPanel,.infoPanel{min-height:0;border-radius:var(--radius);box-shadow:var(--soft-shadow);} 
+    .visualPanel{background:linear-gradient(160deg,#ffffff 0%,#eff1ff 100%);padding:18px;border:1px solid rgba(255,255,255,.88);display:flex;flex-direction:column;gap:12px;overflow:hidden;}
+    .visualHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:30px;}
+    .panelTitle{font-weight:950;color:var(--ink);font-size:14px;letter-spacing:.02em;display:flex;align-items:center;gap:8px;}.smallHint{font-size:12px;color:var(--muted);font-weight:750;}
+    .montage{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:390px;}
+    .tile{position:relative;border-radius:18px;overflow:hidden;background:#fff;border:1px solid #e5e8f4;box-shadow:0 7px 16px rgba(49,46,129,.07);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
+    .tile:hover,.tile:focus-visible{transform:translateY(-2px);box-shadow:0 14px 26px rgba(49,46,129,.13);outline:0;border-color:#a5b4fc}.tile img{width:100%;height:100%;object-fit:cover;display:block;}
+    .tileLabel{position:absolute;left:10px;top:10px;background:rgba(16,4,60,.86);color:white;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;box-shadow:0 8px 14px rgba(0,0,0,.15);}.tileDone{position:absolute;right:10px;top:10px;background:#dcfce7;color:#166534;border:1px solid #86efac;border-radius:999px;padding:6px 8px;font-size:11px;font-weight:950;display:none}.tile.viewed .tileDone{display:block}.tile.active{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.18)}
+    .singleShot{display:grid;grid-template-rows:310px auto;gap:12px;}
+    .shotStage{display:grid;place-items:center;background:linear-gradient(135deg,#f8fafc,#eef2ff);border:1px dashed #c7d2fe;border-radius:22px;padding:12px;min-height:0;}
+    .shotStage img{width:100%;max-height:100%;object-fit:contain;border-radius:18px;box-shadow:0 14px 26px rgba(49,46,129,.12);border:1px solid rgba(255,255,255,.9);}
+    .quickGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.quickBox{background:white;border:1px solid #e5e8f4;border-radius:16px;padding:10px 12px;min-height:74px}.quickLabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;font-weight:950;margin-bottom:5px}.quickText{font-size:13px;line-height:1.25;font-weight:800;color:#160a46}.statusProceed{color:#047857}.statusStop{color:#be123c}.statusCaution{color:#a16207}
+    .infoPanel{background:#f8fafc;border:1px solid rgba(255,255,255,.9);display:flex;flex-direction:column;overflow:hidden;}
+    .infoHead{background:linear-gradient(135deg,#15035d,#4f46e5);padding:18px 22px;color:white}.infoKicker{display:flex;gap:8px;align-items:center;font-size:12px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;opacity:.88}.infoTitle{font-size:clamp(24px,2.75vw,34px);line-height:1;margin:10px 0 6px;font-weight:950;letter-spacing:-.04em}.infoSub{margin:0;font-size:13px;line-height:1.38;color:rgba(255,255,255,.88)}
+    .infoBody{padding:14px 20px;display:flex;flex-direction:column;gap:10px;min-height:0;overflow:visible;flex:1 1 auto}.badge{display:inline-flex;width:max-content;align-items:center;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}.badge.green{background:#dcfce7;color:#166534;border:1px solid #86efac}.badge.red{background:#ffe4e6;color:#9f1239;border:1px solid #fda4af}.badge.amber{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}.badge.indigo{background:#e0e7ff;color:#3730a3;border:1px solid #a5b4fc}.guidance{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:12px 16px;box-shadow:0 8px 22px rgba(15,23,42,.05)}.guidance h3{margin:0 0 7px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#160a46;display:flex;align-items:center;gap:8px}.guidance p{margin:0;font-size:15px;line-height:1.36;color:#111827}.introList{display:grid;gap:9px}.introItem{display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start}.introNum{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#e0e7ff;color:#3730a3;font-weight:950}.introItem strong{display:block;font-size:14px;color:#160a46;margin-bottom:2px}.introItem span{font-size:13px;color:#475569;line-height:1.35}.completeBox{margin-top:auto;background:linear-gradient(135deg,#ecfdf5,#eef2ff);border:1px solid #bbf7d0;color:#14532d;border-radius:16px;padding:12px 14px;font-size:13px;font-weight:800;display:none}.completeBox.show{display:block}
+    .infoFoot{padding:12px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:12px;background:rgba(255,255,255,.72);flex:0 0 auto}.btn{border:0;border-radius:999px;padding:12px 16px;font-weight:950;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}.btn:hover{transform:translateY(-1px)}.btn.primary{background:#4f46e5;color:white;box-shadow:0 10px 18px rgba(79,70,229,.25)}.btn.secondary{background:white;color:#241069;border:1px solid #dbe2f2}.btn.ghost{background:transparent;color:#4f46e5;padding-left:0;padding-right:0}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+    .navStrip{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;min-height:46px}.navBtn{border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.15);color:rgba(255,255,255,.86);border-radius:16px;padding:8px 8px;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;transition:background .15s ease, transform .15s ease}.navBtn:hover,.navBtn:focus-visible{background:rgba(255,255,255,.25);outline:0;transform:translateY(-1px)}.navBtn.active{background:white;color:#241069}.navBtn.viewed:after{content:"✓";display:grid;place-items:center;width:17px;height:17px;border-radius:999px;background:#dcfce7;color:#166534;font-size:10px}.navBtn .short{display:none}
+    @media (max-width:860px){.activity{min-height:0;height:auto;aspect-ratio:auto;border-radius:0}.content{min-height:0;padding:14px;gap:10px;display:grid;grid-template-rows:auto auto auto}.topbar{grid-template-columns:1fr}.progressCard{width:100%;}.main{grid-template-columns:1fr;gap:12px}.subtitle{display:none}.montage{grid-template-columns:1fr 1fr;min-height:460px}.navBtn .long{display:none}.navBtn .short{display:inline}.navStrip{gap:5px}.quickGrid{grid-template-columns:1fr}.quickBox{min-height:0}.infoHead{padding:15px 17px}.infoTitle{font-size:28px}.infoBody{padding:12px 16px;gap:8px}.guidance{padding:10px 12px;border-radius:16px}.guidance p{font-size:14px}.guidance h3{font-size:12px;margin-bottom:5px}.infoFoot{padding:10px 16px}.singleShot{grid-template-rows:220px auto}.visualPanel{padding:12px}.quickGrid{display:none}}
+    @media (max-width:560px){.content{padding:10px}.topbar{display:none}.visualPanel{display:none}.main{display:block}.infoPanel{border-radius:22px}.infoHead{padding:18px 22px}.infoTitle{font-size:29px}.infoSub{font-size:13px}.infoBody{padding:14px 22px}.infoFoot{padding:12px 22px}.navStrip{grid-template-columns:repeat(3,1fr);margin-top:10px}.activity{background:linear-gradient(128deg,#110044 0%, #221079 38%, #4b8cec 100%);}.btn{padding:12px 15px}.guidance{padding:12px 16px}.guidance p{font-size:15px}}
+</style>
+</head>
+<body>
+  <main class="activity" id="activityRoot" role="application" aria-label="booking status banner walkthrough">
+    <div class="content">
+      <section class="topbar">
+        <div>
+          <div class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4.5 5.1v5.8c0 4.7 3.2 9.2 7.5 10.6 4.3-1.4 7.5-5.9 7.5-10.6V5.1L12 2Zm0 2.2 5.5 2.3v4.4c0 3.6-2.2 7-5.5 8.3-3.3-1.3-5.5-4.7-5.5-8.3V6.5L12 4.2Zm3.8 5.2-4.6 4.6-2-2-1.4 1.4 3.4 3.4 6-6-1.4-1.4Z"/></svg> Booking Support Decision Guide</div>
+          <h1>State → action walkthrough</h1>
+          <p class="subtitle">Review the six Booking Desk banner states, then open each state for the exact proceed guidance and agent action.</p>
+        </div>
+        <aside class="progressCard" aria-label="Progress">
+          <div class="progressTop"><span>Progress</span><span id="progressTag">Start</span></div>
+          <div class="track"><div class="bar" id="bar"></div></div>
+          <div class="progressText" id="progressText">0 of 6 reviewed</div>
+        </aside>
+      </section>
+
+      <section class="main">
+        <article class="visualPanel" aria-live="polite">
+          <div class="visualHeader">
+            <div class="panelTitle" id="visualTitle">Banner overview</div>
+            <div class="smallHint" id="visualHint">Click any banner to review its details.</div>
+          </div>
+          <div id="visualContent"></div>
+        </article>
+
+        <article class="infoPanel" aria-live="polite">
+          <header class="infoHead">
+            <div class="infoKicker" id="infoKicker">Presentation</div>
+            <div class="infoTitle" id="infoTitle">Review the banner states first</div>
+            <p class="infoSub" id="infoSub">Use this as a clean presentation walkthrough. You can return to the montage or any banner at any time.</p>
+          </header>
+          <div class="infoBody" id="infoBody"></div>
+          <footer class="infoFoot" id="infoFoot"></footer>
+        </article>
+      </section>
+
+      <nav class="navStrip" id="navStrip" aria-label="Walkthrough navigation"></nav>
+    </div>
+  </main>
+
+  <script>
+    const DATA = [
+  {
+    "state": "New",
+    "proceed": "Follow the action shown below.",
+    "action": "Read the participant request and compare it with the workshop brief before choosing an action.",
+    "badge": "New",
+    "tone": "green",
+    "image": "assets/banner-01-New.png"
+  },
+  {
+    "state": "Paused",
+    "proceed": "Follow the action shown below.",
+    "action": "A required session detail is missing. Ask for the missing detail and keep the request open.",
+    "badge": "Paused",
+    "tone": "red",
+    "image": "assets/banner-02-bookingupdate-ineligible.png"
+  },
+  {
+    "state": "Ready",
+    "proceed": "Follow the action shown below.",
+    "action": "The session and date match the participant request. Send the updated booking summary.",
+    "badge": "Ready",
+    "tone": "indigo",
+    "image": "assets/banner-03-bookingupdate-eligible.png"
+  },
+  {
+    "state": "Completed",
+    "proceed": "Follow the action shown below.",
+    "action": "The updated summary has been sent. Review any new question as a separate request.",
+    "badge": "Completed",
+    "tone": "indigo",
+    "image": "assets/banner-04-Completed.png"
+  },
+  {
+    "state": "Unassigned",
+    "proceed": "Follow the action shown below.",
+    "action": "Choose a request category so the appropriate workshop team can review it.",
+    "badge": "Unassigned",
+    "tone": "amber",
+    "image": "assets/banner-05-no-banner.png"
+  },
+  {
+    "state": "Assigned",
+    "proceed": "Follow the action shown below.",
+    "action": "A coordinator is already reviewing the request. Add relevant new details to the existing record.",
+    "badge": "Assigned",
+    "tone": "red",
+    "image": "assets/banner-06-Assigned.png"
+  }
+];
+
+    const state = { screen: 'intro', current: 0, viewed: new Set(), completeSent:false };
+
+    const el = id => document.getElementById(id);
+    const toneClass = item => item.tone === 'green' ? 'statusProceed' : item.tone === 'amber' ? 'statusCaution' : item.tone === 'red' ? 'statusStop' : '';
+
+    function escapeHTML(value){
+      return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function render(){
+      renderProgress();
+      renderNav();
+      if(state.screen === 'intro') renderIntro();
+      else renderStep(state.current);
+      checkComplete();
+    }
+
+    function renderProgress(){
+      const count = state.viewed.size;
+      el('bar').style.width = `${Math.round((count / DATA.length) * 100)}%`;
+      el('progressText').textContent = `${count} of ${DATA.length} reviewed`;
+      el('progressTag').textContent = count === DATA.length ? 'Complete' : count === 0 ? 'Start' : 'Reviewing';
+    }
+
+    function renderNav(){
+      const nav = el('navStrip');
+      const introActive = state.screen === 'intro';
+      nav.innerHTML = `<button class="navBtn ${introActive ? 'active' : ''}" data-intro="true"><span class="long">Presentation</span><span class="short">Intro</span></button>` + DATA.map((item, index)=>{
+        const active = state.screen === 'step' && state.current === index;
+        const viewed = state.viewed.has(index);
+        return `<button class="navBtn ${active?'active':''} ${viewed?'viewed':''}" data-step="${index}"><span class="long">${index+1}. ${escapeHTML(item.state)}</span><span class="short">${index+1}</span></button>`;
+      }).join('');
+      nav.querySelector('[data-intro]').addEventListener('click',()=>{state.screen='intro';render();});
+      nav.querySelectorAll('[data-step]').forEach(btn=>btn.addEventListener('click',()=>openStep(Number(btn.dataset.step))));
+    }
+
+    function renderIntro(){
+      el('visualTitle').textContent = 'Banner overview';
+      el('visualHint').textContent = 'Click any banner to review its details.';
+      el('visualContent').className = 'montage';
+      el('visualContent').innerHTML = DATA.map((item, index)=>`
+        <button class="tile ${state.viewed.has(index)?'viewed':''}" data-tile="${index}" aria-label="Open ${escapeHTML(item.state)}">
+          <img src="${item.image}" alt="${escapeHTML(item.state)} banner fictional record">
+          <span class="tileLabel">${index+1}. ${escapeHTML(item.state)}</span>
+          <span class="tileDone">Reviewed</span>
+        </button>
+      `).join('');
+      el('visualContent').querySelectorAll('[data-tile]').forEach(tile=>tile.addEventListener('click',()=>openStep(Number(tile.dataset.tile))));
+
+      el('infoKicker').textContent = 'Presentation';
+      el('infoTitle').textContent = 'Banner-state screenshot montage';
+      el('infoSub').textContent = 'Start with the full set, then open each booking state for the related proceed guidance and agent action.';
+      el('infoBody').innerHTML = `
+        <span class="badge indigo">Presentation mode</span>
+        <div class="introList">
+          <div class="introItem"><div class="introNum">1</div><div><strong>Review the montage</strong><span>Use the six screenshots as the visual reference for the Booking Desk banner states.</span></div></div>
+          <div class="introItem"><div class="introNum">2</div><div><strong>Open any state</strong><span>Each state includes the Proceed? decision and the exact agent action.</span></div></div>
+          <div class="introItem"><div class="introNum">3</div><div><strong>Return anytime</strong><span>Use the bottom navigation to jump back to the montage or revisit any state.</span></div></div>
+        </div>
+        <div class="completeBox ${state.viewed.size===DATA.length?'show':''}">All six states have been reviewed. This activity is complete.</div>
+      `;
+      el('infoFoot').innerHTML = `<button class="btn primary" id="startBtn">Start walkthrough</button><button class="btn secondary" id="firstBtn">Open first state</button>`;
+      el('startBtn').addEventListener('click',()=>openStep(0));
+      el('firstBtn').addEventListener('click',()=>openStep(0));
+    }
+
+    function renderStep(index){
+      const item = DATA[index];
+      el('visualTitle').textContent = `${index+1}. ${item.state}`;
+      el('visualHint').textContent = 'Inspect the fictional record, then review its next action.';
+      el('visualContent').className = 'singleShot';
+      el('visualContent').innerHTML = `
+        <div class="shotStage"><img src="${item.image}" alt="${escapeHTML(item.state)} banner screenshot"></div>
+        <div class="quickGrid">
+          <div class="quickBox"><div class="quickLabel">booking State</div><div class="quickText">${escapeHTML(item.state)}</div></div>
+          <div class="quickBox"><div class="quickLabel">Proceed?</div><div class="quickText ${toneClass(item)}">${escapeHTML(item.proceed)}</div></div>
+          <div class="quickBox"><div class="quickLabel">Status</div><div class="quickText">${escapeHTML(item.badge)}</div></div>
+        </div>
+      `;
+
+      el('infoKicker').textContent = `Guided walkthrough · ${index+1} of ${DATA.length}`;
+      el('infoTitle').textContent = item.state;
+      el('infoSub').textContent = 'Review the screenshot, then connect the state to the required agent action.';
+      el('infoBody').innerHTML = `
+        <span class="badge ${item.tone}">${escapeHTML(item.badge)}</span>
+        <section class="guidance"><h3>+ Proceed?</h3><p class="${toneClass(item)}"><strong>${escapeHTML(item.proceed)}</strong></p></section>
+        <section class="guidance"><h3>+ Agent action</h3><p>${escapeHTML(item.action)}</p></section>
+        <div class="completeBox ${state.viewed.size===DATA.length?'show':''}">All six states have been reviewed. This activity is complete.</div>
+      `;
+      const prevDisabled = index === 0 ? 'disabled' : '';
+      const nextLabel = index === DATA.length-1 ? 'Back to montage' : 'Next state';
+      el('infoFoot').innerHTML = `
+        <button class="btn secondary" id="backMontage">Montage</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn secondary" id="prevBtn" ${prevDisabled}>Back</button>
+          <button class="btn primary" id="nextBtn">${nextLabel}</button>
+        </div>
+      `;
+      el('backMontage').addEventListener('click',()=>{state.screen='intro';render();});
+      el('prevBtn').addEventListener('click',()=>{if(index>0) openStep(index-1)});
+      el('nextBtn').addEventListener('click',()=>{ if(index < DATA.length-1) openStep(index+1); else {state.screen='intro';render();} });
+    }
+
+    function openStep(index){
+      state.screen = 'step';
+      state.current = Math.max(0, Math.min(DATA.length-1, index));
+      state.viewed.add(state.current);
+      render();
+    }
+
+    function reportHeight(){
+      try {
+        const height = Math.ceil(Math.max(
+          document.documentElement.scrollHeight,
+          document.body.scrollHeight,
+          el('activityRoot') ? el('activityRoot').getBoundingClientRect().height : 0
+        ));
+        window.parent.postMessage({ type: 'resize', height }, '*');
+      } catch(e) {}
+    }
+
+    function queueHeightReport(){
+      reportHeight();
+      requestAnimationFrame(reportHeight);
+      setTimeout(reportHeight, 80);
+      setTimeout(reportHeight, 250);
+    }
+
+    function checkComplete(){
+      queueHeightReport();
+      if(state.viewed.size === DATA.length && !state.completeSent){
+        state.completeSent = true;
+        try { window.parent.postMessage({ type: 'complete' }, '*'); } catch(e) {}
+      }
+    }
+
+    document.addEventListener('keydown', (event)=>{
+      if(event.key === 'ArrowRight'){
+        if(state.screen === 'intro') openStep(0);
+        else if(state.current < DATA.length-1) openStep(state.current+1);
+        else {state.screen='intro'; render();}
+      }
+      if(event.key === 'ArrowLeft'){
+        if(state.screen === 'step' && state.current > 0) openStep(state.current-1);
+        else {state.screen='intro'; render();}
+      }
+    });
+
+    window.addEventListener('load', reportHeight);
+    window.addEventListener('resize', reportHeight);
+    render();
+  </script>
+</body>
+</html>

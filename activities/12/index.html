@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Booking Archive Knowledge Check</title>
+  <style>
+    :root {
+      --NorthstarDemo-indigo-900: #0a0340;
+      --NorthstarDemo-indigo-700: #0a0340;
+      --NorthstarDemo-indigo-500: #4a4af4;
+      --NorthstarDemo-indigo-100: rgba(157, 160, 249, 0.25);
+      --NorthstarDemo-lavender: #f8f8fa;
+      --surface: #ffffff;
+      --text: #13131f;
+      --muted: #5f6272;
+      --border: #bbbdc6;
+      --correct: #4a4af4;
+      --correct-soft: rgba(157, 160, 249, 0.18);
+      --incorrect: #0a0340;
+      --incorrect-soft: #f8f8fa;
+      --focus: #4a4af4;
+      --shadow: 0 18px 48px rgba(10, 3, 64, 0.18);
+      --radius-large: 20px;
+      --radius-medium: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--NorthstarDemo-lavender);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 620px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(74, 74, 244, 0.09), transparent 26rem),
+        linear-gradient(180deg, #ffffff 0%, var(--NorthstarDemo-lavender) 100%);
+      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-shell {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 22px 0 26px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px 24px;
+      align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(10, 3, 64, 0.12);
+    }
+
+    .title {
+      margin: 0;
+      color: var(--NorthstarDemo-indigo-900);
+      font-family: Arial, "Avenir Next", "Arial Rounded MT Bold", Arial, sans-serif;
+      font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .progress-label {
+      margin: 0;
+      color: var(--NorthstarDemo-indigo-900);
+      font-family: Arial, "Avenir Next", Arial, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      grid-column: 1 / -1;
+      height: 5px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #bbbdc6;
+    }
+
+    .progress-bar {
+      width: 50%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--NorthstarDemo-indigo-700), var(--NorthstarDemo-indigo-500));
+      transition: width 280ms ease;
+    }
+
+    .question-panel {
+      padding: clamp(24px, 4vw, 44px) clamp(4px, 1.5vw, 18px) 0;
+    }
+
+    .instruction {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .question {
+      max-width: 1080px;
+      margin: 0 0 clamp(20px, 3vw, 30px);
+      color: var(--NorthstarDemo-indigo-900);
+      font-family: Arial, "Avenir Next", Arial, sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.15rem);
+      line-height: 1.23;
+      letter-spacing: -0.025em;
+    }
+
+    .answers {
+      display: grid;
+      gap: 11px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .answer-option {
+      position: relative;
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      min-height: 58px;
+      padding: 12px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-medium);
+      background: rgba(255, 255, 255, 0.88);
+      cursor: pointer;
+      transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .answer-option:hover {
+      border-color: #8b8f9c;
+      background: var(--surface);
+      transform: translateY(-1px);
+    }
+
+    .answer-option:has(input:checked) {
+      border-color: var(--NorthstarDemo-indigo-500);
+      background: var(--NorthstarDemo-indigo-100);
+      box-shadow: 0 0 0 2px rgba(74, 74, 244, 0.08);
+    }
+
+    .answer-option:has(input:focus-visible) {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .answer-option input {
+      width: 22px;
+      height: 22px;
+      margin: 0;
+      accent-color: var(--NorthstarDemo-indigo-500);
+      cursor: pointer;
+    }
+
+    .answer-text {
+      min-width: 0;
+      font-size: clamp(1rem, 1.7vw, 1.12rem);
+      line-height: 1.35;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      min-height: 56px;
+      margin-top: 18px;
+    }
+
+    .button {
+      min-width: 176px;
+      min-height: 50px;
+      padding: 12px 24px;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      font-family: Arial, "Avenir Next", Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }
+
+    .button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(10, 3, 64, 0.2);
+    }
+
+    .button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .button-primary {
+      color: #ffffff;
+      background: var(--NorthstarDemo-indigo-700);
+    }
+
+    .button-primary:not(:disabled):hover {
+      background: var(--NorthstarDemo-indigo-900);
+    }
+
+    .button-primary:disabled {
+      color: #5f6272;
+      background: #bbbdc6;
+      cursor: not-allowed;
+    }
+
+    .feedback-backdrop {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      padding: 24px;
+      background: rgba(10, 3, 64, 0.42);
+      backdrop-filter: blur(3px);
+    }
+
+    .feedback-panel {
+      display: grid;
+      grid-template-columns: 50px minmax(0, 1fr) auto;
+      gap: 14px 20px;
+      align-items: center;
+      width: min(980px, 100%);
+      max-height: calc(100% - 48px);
+      overflow: auto;
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-large);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .feedback-panel.correct {
+      border-top: 6px solid var(--correct);
+      background: linear-gradient(180deg, var(--surface), var(--correct-soft));
+    }
+
+    .feedback-panel.incorrect {
+      border-top: 6px solid var(--incorrect);
+      background: linear-gradient(180deg, var(--surface), var(--incorrect-soft));
+    }
+
+    .feedback-symbol {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      color: #ffffff;
+      background: var(--correct);
+    }
+
+    .incorrect .feedback-symbol {
+      background: var(--incorrect);
+    }
+
+    .feedback-symbol svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2.5;
+    }
+
+    .feedback-copy h2 {
+      margin: 0 0 4px;
+      color: var(--correct);
+      font-family: Arial, "Avenir Next", Arial, sans-serif;
+      font-size: 1.4rem;
+      line-height: 1.2;
+    }
+
+    .incorrect .feedback-copy h2 {
+      color: var(--incorrect);
+    }
+
+    .feedback-copy p {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.02rem;
+    }
+
+    .feedback-panel .button {
+      min-width: 150px;
+    }
+
+    .completion {
+      display: grid;
+      justify-items: center;
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: clamp(48px, 9vw, 86px) 20px 32px;
+      text-align: center;
+    }
+
+    .completion-mark {
+      display: grid;
+      place-items: center;
+      width: 76px;
+      height: 76px;
+      margin-bottom: 22px;
+      border-radius: 50%;
+      color: #ffffff;
+      background: var(--NorthstarDemo-indigo-700);
+      box-shadow: 0 14px 36px rgba(10, 3, 64, 0.22);
+    }
+
+    .completion-mark svg {
+      width: 42px;
+      height: 42px;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 2.5;
+    }
+
+    .completion h2 {
+      margin: 0 0 10px;
+      color: var(--NorthstarDemo-indigo-900);
+      font-family: Arial, "Avenir Next", Arial, sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.15;
+    }
+
+    .completion p {
+      max-width: 560px;
+      margin: 0 0 26px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .completion-status {
+      min-height: 1.5em;
+      margin-top: 14px;
+      color: var(--correct);
+      font-weight: 700;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        min-height: 0;
+      }
+
+      .app-shell {
+        width: min(100% - 24px, 1180px);
+        padding-top: 14px;
+      }
+
+      .topbar {
+        gap: 10px 14px;
+        padding-bottom: 14px;
+      }
+
+      .question-panel {
+        padding-top: 24px;
+      }
+
+      .answer-option {
+        grid-template-columns: 22px minmax(0, 1fr);
+        padding: 12px 14px;
+      }
+
+      .feedback-backdrop {
+        align-items: center;
+        padding: 12px;
+      }
+
+      .feedback-panel {
+        grid-template-columns: 44px minmax(0, 1fr);
+        padding: 20px 18px;
+      }
+
+      .feedback-panel .button {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+    }
+
+    @media (max-height: 680px) and (min-width: 701px) {
+      .app-shell {
+        padding-top: 14px;
+      }
+
+      .topbar {
+        padding-bottom: 12px;
+      }
+
+      .question-panel {
+        padding-top: 20px;
+      }
+
+      .question {
+        margin-bottom: 16px;
+        font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+      }
+
+      .answer-option {
+        min-height: 52px;
+        padding-block: 9px;
+      }
+
+      .action-row {
+        margin-top: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell" aria-labelledby="activity-title">
+    <header class="topbar">
+      <h1 class="title" id="activity-title">Knowledge Check</h1>
+      <p class="progress-label" id="progress-label">Question 1 of 2</p>
+      <div class="progress-track" role="progressbar" aria-label="Knowledge check progress" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </header>
+
+    <section class="question-panel" id="question-panel" aria-live="polite">
+      <p class="instruction">Select the best answer.</p>
+      <h2 class="question" id="question-text" tabindex="-1"></h2>
+
+      <form id="question-form">
+        <fieldset class="answers" id="answer-list">
+          <legend class="sr-only">Answer choices</legend>
+        </fieldset>
+
+        <div class="action-row">
+          <button class="button button-primary" id="submit-button" type="submit" disabled>Submit answer</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="completion" id="completion" hidden aria-labelledby="completion-title">
+      <div class="completion-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m5 12 4.2 4.2L19 6.8"></path></svg>
+      </div>
+      <h2 id="completion-title">Knowledge check complete</h2>
+      <p>You answered both questions correctly. Select Finish activity to record your completion.</p>
+      <button class="button button-primary" id="finish-button" type="button">Finish activity</button>
+      <div class="completion-status" id="completion-status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div class="feedback-backdrop" id="feedback-backdrop" hidden>
+    <section class="feedback-panel" id="feedback-panel" role="alertdialog" aria-modal="true" aria-labelledby="feedback-title" aria-describedby="feedback-text">
+      <div class="feedback-symbol" id="feedback-symbol" aria-hidden="true"></div>
+      <div class="feedback-copy">
+        <h2 id="feedback-title"></h2>
+        <p id="feedback-text"></p>
+      </div>
+      <button class="button button-primary" id="feedback-button" type="button"></button>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const questions = [
+        {
+          id: "active-booking",
+          prompt: "Booking Desk notes say the case is complete, but Jordan finds one active booking with no archival status. What should he do?",
+          correctAnswerId: "manual-archival",
+          feedback: "The fictional organizer brief identifies this session as canceled. Complete the missing archive action on that record, then update the notes.",
+          answers: [
+            { id: "transfer-back", text: "Transfer the case back to Booking Desk" },
+            { id: "escalate-lead", text: "Escalate the case to Booking Desk lead" },
+            { id: "manual-archival", text: "Complete the manual archival in Case Desk" },
+            { id: "continue-review", text: "Not attempt the archival and continue with the review" }
+          ]
+        },
+        {
+          id: "required-information",
+          prompt: "What information must be correct before you archive a booking in Case Desk?",
+          correctAnswerId: "all-above",
+          feedback: "Check the booking code, effective date, reason, and explanatory note against the fictional organizer brief before archiving.",
+          answers: [
+            { id: "booking-id", text: "booking ID" },
+            { id: "effective-date", text: "Effective Date" },
+            { id: "reason", text: "Reason" },
+            { id: "explanation", text: "archival explanation" },
+            { id: "all-above", text: "All of the above" }
+          ]
+        }
+      ];
+
+      const shuffle = (items) => {
+        const result = [...items];
+        for (let index = result.length - 1; index > 0; index -= 1) {
+          const randomValues = new Uint32Array(1);
+          window.crypto.getRandomValues(randomValues);
+          const swapIndex = randomValues[0] % (index + 1);
+          [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+        }
+        return result;
+      };
+
+      const runtimeQuestions = questions.map((question) => ({
+        ...question,
+        answers: shuffle(question.answers)
+      }));
+
+      const elements = {
+        progressLabel: document.getElementById("progress-label"),
+        progressBar: document.getElementById("progress-bar"),
+        progressTrack: document.querySelector(".progress-track"),
+        questionPanel: document.getElementById("question-panel"),
+        questionText: document.getElementById("question-text"),
+        questionForm: document.getElementById("question-form"),
+        answerList: document.getElementById("answer-list"),
+        submitButton: document.getElementById("submit-button"),
+        feedbackBackdrop: document.getElementById("feedback-backdrop"),
+        feedbackPanel: document.getElementById("feedback-panel"),
+        feedbackSymbol: document.getElementById("feedback-symbol"),
+        feedbackTitle: document.getElementById("feedback-title"),
+        feedbackText: document.getElementById("feedback-text"),
+        feedbackButton: document.getElementById("feedback-button"),
+        completion: document.getElementById("completion"),
+        finishButton: document.getElementById("finish-button"),
+        completionStatus: document.getElementById("completion-status")
+      };
+
+      const icons = {
+        correct: '<svg viewBox="0 0 24 24"><path d="m5 12 4.2 4.2L19 6.8"></path></svg>',
+        incorrect: '<svg viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"></path></svg>'
+      };
+
+      let currentQuestionIndex = 0;
+      let selectedAnswerId = null;
+      let feedbackAction = "retry";
+      let completionSent = false;
+
+      const updateProgress = () => {
+        const current = currentQuestionIndex + 1;
+        elements.progressLabel.textContent = `Question ${current} of ${runtimeQuestions.length}`;
+        elements.progressBar.style.width = `${(current / runtimeQuestions.length) * 100}%`;
+        elements.progressTrack.setAttribute("aria-valuenow", String(current));
+      };
+
+      const renderQuestion = () => {
+        const question = runtimeQuestions[currentQuestionIndex];
+        selectedAnswerId = null;
+        updateProgress();
+        elements.questionText.textContent = question.prompt;
+        elements.answerList.querySelectorAll(".answer-option").forEach((option) => option.remove());
+
+        question.answers.forEach((answer) => {
+          const label = document.createElement("label");
+          label.className = "answer-option";
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = "answer";
+          input.value = answer.id;
+          input.setAttribute("aria-label", answer.text);
+
+          const text = document.createElement("span");
+          text.className = "answer-text";
+          text.textContent = answer.text;
+
+          input.addEventListener("change", () => {
+            selectedAnswerId = input.value;
+            elements.submitButton.disabled = false;
+          });
+
+          label.append(input, text);
+          elements.answerList.append(label);
+        });
+
+        elements.submitButton.disabled = true;
+      };
+
+      const showFeedback = (isCorrect, message) => {
+        feedbackAction = isCorrect ? "continue" : "retry";
+        elements.feedbackPanel.className = `feedback-panel ${isCorrect ? "correct" : "incorrect"}`;
+        elements.feedbackSymbol.innerHTML = isCorrect ? icons.correct : icons.incorrect;
+        elements.feedbackTitle.textContent = isCorrect ? "Correct" : "Not quite";
+        elements.feedbackText.textContent = message;
+        elements.feedbackButton.textContent = isCorrect ? "Continue" : "Try again";
+        elements.feedbackBackdrop.hidden = false;
+        requestAnimationFrame(() => elements.feedbackButton.focus());
+      };
+
+      const hideFeedback = () => {
+        elements.feedbackBackdrop.hidden = true;
+      };
+
+      const renderCompletion = () => {
+        elements.questionPanel.hidden = true;
+        elements.completion.hidden = false;
+        elements.progressLabel.textContent = "Complete";
+        elements.progressBar.style.width = "100%";
+        elements.progressTrack.setAttribute("aria-valuenow", String(runtimeQuestions.length));
+        requestAnimationFrame(() => elements.finishButton.focus());
+      };
+
+      elements.questionForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!selectedAnswerId) return;
+
+        const question = runtimeQuestions[currentQuestionIndex];
+        if (selectedAnswerId === question.correctAnswerId) {
+          showFeedback(true, question.feedback);
+        } else {
+          showFeedback(false, "That response is not correct. Review the options and try again.");
+        }
+      });
+
+      elements.feedbackButton.addEventListener("click", () => {
+        hideFeedback();
+
+        if (feedbackAction === "retry") {
+          renderQuestion();
+          const firstAnswer = elements.answerList.querySelector("input");
+          if (firstAnswer) firstAnswer.focus();
+          return;
+        }
+
+        if (currentQuestionIndex < runtimeQuestions.length - 1) {
+          currentQuestionIndex += 1;
+          renderQuestion();
+          elements.questionText.focus({ preventScroll: true });
+        } else {
+          renderCompletion();
+        }
+      });
+
+      elements.finishButton.addEventListener("click", () => {
+        if (completionSent) return;
+        completionSent = true;
+        window.parent.postMessage({ type: "complete" }, "*");
+        elements.finishButton.textContent = "Activity complete";
+        elements.finishButton.disabled = true;
+        elements.completionStatus.textContent = "Completion recorded.";
+      });
+
+      renderQuestion();
+    })();
+  </script>
+</body>
+</html>

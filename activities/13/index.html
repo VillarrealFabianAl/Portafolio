@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Booking Status Decisions</title>
+  <style>
+    :root {
+      --ink: #211c50;
+      --muted: #625e80;
+      --indigo: #4038ba;
+      --indigo-dark: #2d2798;
+      --indigo-soft: #f3f1ff;
+      --line: #d9d5fb;
+      --canvas: #faf9ff;
+      --white: #ffffff;
+      --success: #14724e;
+      --error: #a53049;
+      --pink: #ec6e91;
+      --shadow: 0 18px 44px rgba(43, 35, 142, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--canvas); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: linear-gradient(135deg, #fbfaff, #efedff);
+      color: var(--ink);
+      font-family: Calibri, Arial, sans-serif;
+    }
+    body.modal-open { overflow: hidden; }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid rgba(64,56,186,.24); outline-offset: 3px; }
+    h1, h2, h3, h4 { font-family: Arial, Calibri, Arial, sans-serif; }
+
+    .shell { width: min(1320px, calc(100% - 24px)); margin: 0 auto; padding: 24px 0 30px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 10px; color: var(--indigo-dark); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pink); flex: 0 0 auto; }
+    h1 { margin: 0; font-size: clamp(34px, 4.8vw, 56px); line-height: 1; letter-spacing: -.055em; }
+    .intro { max-width: 900px; margin: 12px 0 18px; color: var(--muted); font-size: 17px; line-height: 1.45; }
+
+    .panel { padding: 22px; border: 1px solid var(--line); border-radius: 28px; background: #fff; box-shadow: var(--shadow); }
+    .panel-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 18px; }
+    .panel-top h2 { margin: 0; font-size: clamp(28px, 3.3vw, 42px); letter-spacing: -.045em; }
+    .help { max-width: 720px; margin: 8px 0 0; color: var(--muted); font-size: 16px; line-height: 1.42; }
+
+    .progress { min-width: 190px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 16px; background: #faf9ff; }
+    .progress span { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .progress b { display: block; color: var(--indigo); font-size: 19px; }
+    .bar { height: 8px; margin-top: 9px; overflow: hidden; border-radius: 99px; background: #e8e6ff; }
+    .bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--indigo-dark), #8279ef); transition: width .35s ease; }
+
+    .activity-layout { display: grid; grid-template-columns: minmax(0, 450px) minmax(0, 1fr); gap: 18px; align-items: start; }
+    .state-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+
+    .state-card { display: grid; grid-template-rows: 94px auto; width: 100%; overflow: hidden; padding: 0; border: 2px solid var(--line); border-radius: 20px; background: #fff; color: var(--ink); cursor: pointer; text-align: left; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+    .state-card:hover, .state-card:focus-visible { transform: translateY(-3px); border-color: var(--indigo); box-shadow: 0 12px 24px rgba(60,52,181,.13); }
+    .state-card.active { border-color: var(--indigo-dark); background: #f8f7ff; box-shadow: 0 0 0 3px rgba(64,56,186,.10); }
+    .state-card.complete { background: #f7fffb; }
+    .state-image { display: grid; place-items: center; padding: 10px; border-bottom: 1px solid #e7e4ff; background: linear-gradient(180deg, #f5f4ff, #fff); }
+    .state-image img { display: block; width: 100%; height: 72px; object-fit: contain; border-radius: 8px; background: #fff; box-shadow: 0 5px 12px rgba(49,43,127,.10); }
+    .state-copy { display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 10px; padding: 12px 14px 14px; }
+    .state-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--indigo); background: #edebff; }
+    .state-icon svg { width: 19px; height: 19px; }
+    .state-card.complete .state-icon { color: #fff; background: var(--success); }
+    .state-copy h3 { margin: 0 0 3px; font-size: 16px; }
+    .state-copy p { margin: 0; color: var(--indigo); font-size: 12px; font-weight: 800; }
+
+    .challenge-panel { display: grid; min-height: 700px; padding: 18px; border: 1px solid #d6d2ff; border-radius: 22px; background: linear-gradient(115deg, #f7f6ff, #fcfbff); }
+    .challenge-panel.empty { place-items: center; text-align: center; }
+    .challenge-panel.empty .placeholder { max-width: 470px; color: var(--muted); font-size: 18px; line-height: 1.5; }
+    .challenge-panel.empty .placeholder strong { display: block; margin-bottom: 10px; color: var(--indigo-dark); font-size: 24px; }
+
+    .challenge-content { display: grid; grid-template-rows: auto auto auto 1fr auto auto; gap: 14px; min-height: 100%; }
+    .challenge-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .challenge-label { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 8px; color: var(--indigo); font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+    .challenge-label svg { width: 16px; height: 16px; }
+    .challenge-head h3 { margin: 0; font-size: 30px; letter-spacing: -.04em; }
+
+    .preview-button { position: relative; display: grid; place-items: center; width: 100%; min-height: 200px; padding: 12px; border: 1px solid #d6d2ff; border-radius: 16px; background: #fff; cursor: zoom-in; }
+    .preview-button img { display: block; width: 100%; max-height: 205px; object-fit: contain; border-radius: 8px; background: #fff; }
+    .zoom-cue { position: absolute; right: 10px; top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; color: #fff; background: var(--indigo-dark); font-size: 11px; font-weight: 900; box-shadow: 0 6px 14px rgba(45,39,152,.22); }
+    .zoom-cue svg { width: 14px; height: 14px; }
+
+    .prompt-box, .feedback-box, .summary-box { padding: 16px 18px; border: 1px solid #dbd8ff; border-radius: 16px; background: #fff; }
+    .prompt-box p, .summary-box p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.45; }
+    .prompt-box strong, .summary-box strong { color: var(--indigo-dark); }
+    .summary-box { background: linear-gradient(115deg, #fff, #f6f8ff); }
+
+    .choice-list { display: grid; gap: 10px; }
+    .choice { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; width: 100%; min-height: 74px; padding: 14px 16px; border: 2px solid #d9d5ff; border-radius: 15px; background: #fff; color: var(--ink); text-align: left; cursor: pointer; transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+    .choice:hover:not(:disabled), .choice:focus-visible:not(:disabled) { transform: translateX(4px); border-color: var(--indigo); background: #f6f5ff; }
+    .choice::after { content: '→'; color: var(--indigo); font-size: 20px; line-height: 1; }
+    .choice.good { border-color: var(--success); background: #ecfbf3; color: #0d6644; }
+    .choice.good::after { content: '✓'; color: var(--success); }
+    .choice.bad { border-color: #e1a1ae; background: #fff3f5; color: var(--error); }
+    .choice:disabled { cursor: default; }
+
+    .feedback-box { display: none; }
+    .feedback-box.show { display: block; }
+    .feedback-box.good { border-color: #9cd7bb; background: #ecfbf3; }
+    .feedback-box.bad { border-color: #edb4c0; background: #fff3f5; }
+    .feedback-box p { margin: 0; font-size: 16px; line-height: 1.45; }
+    .feedback-box strong { color: var(--ink); }
+
+    .challenge-footer { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding-top: 4px; }
+    .challenge-footer p { margin: 0; color: var(--muted); font-size: 14px; font-weight: 700; }
+    .button { padding: 14px 18px; border: 0; border-radius: 14px; color: #fff; background: var(--indigo); font-weight: 900; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    .button:hover:not(:disabled), .button:focus-visible:not(:disabled) { transform: translateY(-2px); box-shadow: 0 9px 18px rgba(64,56,186,.20); }
+    .button.success { background: var(--success); }
+    .button.secondary { background: var(--indigo-dark); }
+    .button:disabled { cursor: default; opacity: .58; box-shadow: none; }
+
+    .modal[hidden] { display: none; }
+    .modal { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(15,11,49,.82); backdrop-filter: blur(5px); }
+    .modal-dialog { width: min(1180px, 100%); max-height: 92vh; overflow: auto; padding: 18px; border-radius: 22px; background: #fff; box-shadow: 0 28px 70px rgba(0,0,0,.34); }
+    .modal-top { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 14px; }
+    .modal-title { margin: 0; font-size: 20px; }
+    .modal-close { display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; color: #fff; background: var(--indigo-dark); cursor: pointer; }
+    .modal-close svg { width: 20px; height: 20px; }
+    .modal img { display: block; width: 100%; max-height: 72vh; object-fit: contain; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .modal-note { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+
+    @media (max-width: 980px) {
+      .activity-layout { grid-template-columns: 1fr; }
+      .state-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .challenge-panel { min-height: 0; }
+    }
+    @media (max-width: 760px) {
+      .panel-top { display: block; }
+      .progress { width: max-content; margin-top: 14px; }
+      .state-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .challenge-footer { display: block; }
+      .challenge-footer .button { width: 100%; margin-top: 12px; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 12px, 560px); padding: 18px 0 22px; }
+      .panel { padding: 16px; border-radius: 22px; }
+      .state-board { grid-template-columns: 1fr; }
+      .state-card { grid-template-rows: 90px auto; }
+      .state-image img { height: 68px; }
+      .challenge-panel { padding: 14px; }
+      .modal { padding: 8px; }
+      .modal-dialog { padding: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+<style id="course-font-standard">html,body,button,input,select,textarea{font-family:Calibri,Arial,sans-serif}h1,h2,h3,h4,h5,h6,[role="heading"],.title,.headline,[class*="-title"],[class*="_title"],.question-prompt,.result-headline{font-family:Arial,Arial,sans-serif!important}</style></head>
+<body>
+  <main class="shell">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span><span id="eyebrow"></span></p>
+    <h1 id="title"></h1>
+    <p class="intro" id="instructions"></p>
+
+    <section class="panel">
+      <div class="panel-top">
+        <div>
+          <h2 id="board-title"></h2>
+          <p class="help" id="board-help"></p>
+        </div>
+        <div class="progress">
+          <span id="progress-label"></span>
+          <b id="progress-count"></b>
+          <div class="bar" id="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" aria-label="States completed"><i id="progress-fill"></i></div>
+        </div>
+      </div>
+
+      <div class="activity-layout">
+        <div class="state-board" id="state-board"></div>
+        <div class="challenge-panel empty" id="challenge-panel" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="image-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <h3 class="modal-title" id="modal-title">Banner preview</h3>
+        <button class="modal-close" id="modal-close" type="button" aria-label="Close banner preview"></button>
+      </div>
+      <img id="modal-image" src="" alt="">
+      <p class="modal-note" id="modal-note"></p>
+    </div>
+  </div>
+
+  <script src="activity-config.js"></script>
+  <script>
+    const ICONS = {
+      open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>',
+      close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+      action: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>',
+      complete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.7 2.7L16.5 9"/></svg>',
+      New: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 7.7-8 9-4.5-1.3-8-4-8-9V6l8-3z"/><path d="M12 8v5M12 16h.01"/></svg>',
+      'bookingupdate-ineligible': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
+      'bookingupdate-eligible': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 7.7-8 9-4.5-1.3-8-4-8-9V6l8-3z"/><path d="M8 12l2.6 2.6L16.2 9"/></svg>',
+      Completed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M9 15l2 2 4-4"/></svg>',
+      'no-banner': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>',
+      Assigned: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V5M6 5h10l-2 3 2 3H6"/></svg>'
+    };
+
+    const config = window.ACTIVITY_CONFIG;
+    const items = config.items;
+    const results = new Map();
+    let active = null;
+    let lastFocused = null;
+    let completionSent = false;
+
+    const $ = id => document.getElementById(id);
+    const text = (id, value) => { $(id).textContent = value; };
+    const icon = key => ICONS[key] || ICONS.action;
+
+    function setTheme() {
+      const s = config.style;
+      const root = document.documentElement.style;
+      root.setProperty('--indigo', s.accent);
+      root.setProperty('--indigo-dark', s.accentDark);
+      root.setProperty('--indigo-soft', s.accentSoft);
+      root.setProperty('--canvas', s.canvas);
+      root.setProperty('--ink', s.text);
+      root.setProperty('--muted', s.muted);
+      root.setProperty('--success', s.success);
+      root.setProperty('--error', s.error);
+    }
+
+    function isComplete(index) {
+      return results.get(index)?.complete === true;
+    }
+
+    function completedCount() {
+      return Array.from(results.values()).filter(result => result.complete).length;
+    }
+
+    function renderBoard() {
+      $('state-board').innerHTML = items.map((item, index) => `
+        <button class="state-card ${isComplete(index) ? 'complete' : ''} ${active === index ? 'active' : ''}" data-state="${index}" type="button" aria-pressed="${active === index}">
+          <span class="state-image"><img src="${item.image}" alt="${item.alt}"></span>
+          <span class="state-copy">
+            <span class="state-icon" aria-hidden="true">${isComplete(index) ? ICONS.complete : icon(item.id)}</span>
+            <span>
+              <h3>${item.title}</h3>
+              <p>${isComplete(index) ? 'Completed' : 'Open challenge'}</p>
+            </span>
+          </span>
+        </button>`).join('');
+
+      $('state-board').querySelectorAll('[data-state]').forEach(button => {
+        button.addEventListener('click', () => openState(Number(button.dataset.state)));
+      });
+    }
+
+    function renderPlaceholder() {
+      $('challenge-panel').className = 'challenge-panel empty';
+      $('challenge-panel').innerHTML = `<div class="placeholder"><strong>${config.content.promptTitle}</strong>${config.content.promptText}</div>`;
+    }
+
+    function renderProgress() {
+      const count = completedCount();
+      text('progress-count', `${count} of ${items.length}`);
+      $('progress-fill').style.width = `${count / items.length * 100}%`;
+      $('progressbar').setAttribute('aria-valuemax', String(items.length));
+      $('progressbar').setAttribute('aria-valuenow', String(count));
+    }
+
+    function openState(index) {
+      active = index;
+      renderBoard();
+      renderChallenge();
+    }
+
+    function renderChallenge() {
+      const item = items[active];
+      const state = results.get(active) || { complete: false, answered: false, selected: null, correct: false };
+
+      $('challenge-panel').className = 'challenge-panel';
+      $('challenge-panel').innerHTML = `
+        <div class="challenge-content">
+          <div class="challenge-head">
+            <div>
+              <p class="challenge-label">${ICONS.action}${config.content.challengeLabel}</p>
+              <h3>${item.title}</h3>
+            </div>
+          </div>
+
+          <button class="preview-button" id="preview-button" type="button" aria-label="Open the ${item.title} banner larger">
+            <img src="${item.image}" alt="${item.alt}">
+            <span class="zoom-cue">${ICONS.open}${config.content.previewLabel}</span>
+          </button>
+
+          <div class="prompt-box"><p><strong>${item.prompt}</strong></p></div>
+
+          <div class="choice-list" id="choice-list">
+            ${item.choices.map(choice => {
+              let className = 'choice';
+              if (state.answered && choice.id === item.correctChoiceId) className += ' good';
+              if (state.answered && state.selected === choice.id && choice.id !== item.correctChoiceId) className += ' bad';
+              return `<button class="${className}" data-choice="${choice.id}" type="button" ${state.complete ? 'disabled' : ''}>${choice.label}</button>`;
+            }).join('')}
+          </div>
+
+          <div class="feedback-box ${state.answered ? 'show ' + (state.correct ? 'good' : 'bad') : ''}" id="feedback-box">
+            ${state.answered ? `<p><strong>${state.correct ? config.content.correctPrefix : config.content.incorrectPrefix}</strong> ${item.explanation} <strong>Correct next step:</strong> ${item.choices.find(choice => choice.id === item.correctChoiceId).label}</p>` : ''}
+          </div>
+
+          <div class="summary-box"><p><strong>Why this state matters:</strong> ${item.explanation}</p></div>
+
+          <div class="challenge-footer">
+            <p>${completedCount() === items.length ? config.content.completedText : 'Complete this state correctly, then continue with another banner.'}</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+              <button class="button secondary" id="continue-button" type="button" ${state.complete ? '' : 'disabled'}>${config.content.tryAnotherLabel}</button>
+              <button class="button success" id="finish-button" type="button" ${completedCount() === items.length ? '' : 'disabled'}>${config.content.finishButton}</button>
+            </div>
+          </div>
+        </div>`;
+
+      $('preview-button').addEventListener('click', event => openImage(active, event.currentTarget));
+      $('choice-list').querySelectorAll('[data-choice]').forEach(button => {
+        button.addEventListener('click', event => chooseAnswer(event.currentTarget.dataset.choice));
+      });
+      $('continue-button').addEventListener('click', () => {
+        active = null;
+        renderBoard();
+        renderPlaceholder();
+        resize();
+      });
+      $('finish-button').addEventListener('click', finish);
+      resize();
+    }
+
+    function chooseAnswer(choiceId) {
+      const item = items[active];
+      const correct = choiceId === item.correctChoiceId;
+      results.set(active, { complete: correct, answered: true, selected: choiceId, correct });
+      renderProgress();
+      renderBoard();
+      renderChallenge();
+
+      // Rise completion must fire as soon as the final required item is completed.
+      // The Finish activity button remains available as a manual fallback.
+      if (correct && completedCount() === items.length) {
+        window.setTimeout(() => finish(), 0);
+      }
+    }
+
+    function openImage(index, trigger) {
+      const item = items[index];
+      lastFocused = trigger || document.activeElement;
+      $('modal-title').textContent = `${item.title} banner`;
+      $('modal-image').src = item.image;
+      $('modal-image').alt = item.alt;
+      $('image-modal').hidden = false;
+      document.body.classList.add('modal-open');
+      $('modal-close').focus();
+    }
+
+    function closeImage() {
+      if ($('image-modal').hidden) return;
+      $('image-modal').hidden = true;
+      $('modal-image').removeAttribute('src');
+      document.body.classList.remove('modal-open');
+      if (lastFocused) lastFocused.focus();
+    }
+
+    function finish() {
+      if (completedCount() !== items.length) return;
+
+      if (!completionSent) {
+        completionSent = true;
+        // Exact Rise 360 completion call required by completion-enabled code blocks.
+        try { window.parent.postMessage({ type: 'complete' }, '*'); } catch (error) {}
+      }
+
+      const footer = $('challenge-panel').querySelector('.challenge-footer p');
+      if (footer) footer.textContent = config.content.completionMessage;
+      const button = $('finish-button');
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Completed';
+      }
+      resize();
+    }
+
+    function resize() {
+      const height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, 760);
+      try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'activity-resize', height }, '*'); } catch (error) {}
+    }
+
+    function render() {
+      setTheme();
+      const c = config.content;
+      text('eyebrow', c.eyebrow);
+      text('title', c.title);
+      text('instructions', c.instructions);
+      text('board-title', c.boardTitle);
+      text('board-help', c.boardHelp);
+      text('progress-label', c.progressLabel);
+      text('modal-note', c.modalNote);
+      $('modal-close').innerHTML = ICONS.close;
+
+      renderBoard();
+      renderPlaceholder();
+      renderProgress();
+
+      $('modal-close').addEventListener('click', closeImage);
+      $('image-modal').addEventListener('click', event => { if (event.target === $('image-modal')) closeImage(); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape') closeImage(); });
+      window.addEventListener('resize', resize);
+      if ('ResizeObserver' in window) new ResizeObserver(resize).observe(document.body);
+      resize();
+    }
+
+    render();
+  </script>
+</body>
+</html>

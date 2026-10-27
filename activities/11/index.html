@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Routing Tag Walkthrough</title>
+  <link rel="stylesheet" href="styles.css" />
+<style id="course-font-standard">html,body,button,input,select,textarea{font-family:Calibri,Arial,sans-serif}h1,h2,h3,h4,h5,h6,[role="heading"],.title,.headline,[class*="-title"],[class*="_title"],.question-prompt,.result-headline{font-family:Arial,Arial,sans-serif!important}</style></head>
+<body>
+  <main class="presentation" id="presentation" aria-label="Reviewing the most recent TagBoard label">
+    <header class="topbar">
+      <div class="brand-lockup"><span class="brand-dot" aria-hidden="true"></span><span>Request Board label review</span></div>
+      <div class="progress-wrap" aria-label="Walkthrough progress">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span id="progressText">Overview</span>
+      </div>
+      <button class="icon-button" id="fullscreenButton" type="button" aria-label="Open full screen" title="Full screen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+      </button>
+    </header>
+
+    <div class="stage" id="stage">
+      <section class="slide active intro-slide" data-label="Overview">
+        <div class="intro-copy">
+          <p class="step-kicker">Request Board label review</p>
+          <h1>Confirm the context.<br><span>Use the most recent label.</span></h1>
+          <p class="intro-summary">This demo begins after Booking Desk shows the booking is New. It shows exactly where the Request Board banner and Routing Tags table appear and how to identify the most recent routing label.</p>
+          <div class="prerequisite-note"><strong>Layer 1 prerequisite:</strong> confirm the booking shows the <strong>New</strong> banner in Booking Desk. Only New proceeds to the Request Board label review.</div>
+          <div class="intro-rules" aria-label="Core rules">
+            <span><strong>Booking Desk first</strong>—confirm New before opening Request Board</span>
+            <span><strong>Wait for the page</strong>—do not use a partially loaded screen</span>
+            <span><strong>Compare Updated dates</strong>—never assume the first row is newest</span>
+            <span><strong>Review only</strong>—carry the most recent label and sub-label to the eligibility matrix</span>
+          </div>
+          <button class="primary-button intro-start" type="button" data-next>Start walkthrough<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+        <div class="intro-visual" aria-hidden="true">
+          <div class="intro-screen">
+            <img src="assets/02_investigation_loaded.jpg" alt="" />
+            <div class="intro-guideline">
+              <span>1</span><b>Open the participant in Request Board</b>
+              <span>2</span><b>Wait for Booking Details</b>
+              <span>3</span><b>Review the visible Request Board banner</b>
+              <span>4</span><b>Wait for Routing Tags</b>
+              <span>5</span><b>Use the most recent Updated entry</b>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide media-slide" data-label="Step 1 of 5" data-min-watch="4">
+        <div class="slide-copy compact-copy">
+          <div class="step-number">01</div>
+          <p class="step-kicker">Open the correct participant</p>
+          <h2>Open the matching <strong>participant result</strong>.</h2>
+          <div class="instruction-grid">
+            <article><span>Do</span><p>Search using the participant’s Booking code and select the matching result.</p></article>
+            <article><span>Check</span><p>Confirm that Request Board begins opening the participant investigation.</p></article>
+            <article><span>Why</span><p>The banner and Routing Tags table are reviewed from this participant’s Booking Details page.</p></article>
+          </div>
+        </div>
+        <div class="media-shell">
+          <video class="focus-video contain-video" src="assets/01_search_and_open_actual.mp4" poster="assets/01_search_and_open_actual.jpg" muted loop playsinline preload="metadata"></video>
+        </div>
+        <p class="watch-line"><span aria-hidden="true"></span>Watch for: the selected result matches the Booking code used in the search. <em class="unlock-note">Continue unlocks after the key action plays.</em></p>
+      </section>
+
+      <section class="slide media-slide" data-label="Step 2 of 5" data-min-watch="5">
+        <div class="slide-copy compact-copy">
+          <div class="step-number">02</div>
+          <p class="step-kicker">Let the page finish</p>
+          <h2>Wait for <strong>Booking Details</strong> to load.</h2>
+          <div class="instruction-grid">
+            <article><span>Wait</span><p>Allow the participant details and expandable sections to appear before reviewing anything.</p></article>
+            <article><span>Check</span><p>The Booking Details tab, the visible Request Board banner, and the Routing Tags section are present.</p></article>
+            <article><span>Avoid</span><p>Do not make an eligibility decision while the screen is blank or still loading.</p></article>
+          </div>
+        </div>
+        <div class="media-shell">
+          <video class="focus-video contain-video" src="assets/02_investigation_load_actual.mp4" poster="assets/02_investigation_load_actual.jpg" muted loop playsinline preload="metadata"></video>
+        </div>
+        <p class="watch-line"><span aria-hidden="true"></span>Watch for: the complete Booking Details layout appears before the next review step. <em class="unlock-note">Continue unlocks after the key action plays.</em></p>
+      </section>
+
+      <section class="slide media-slide" data-label="Step 3 of 5" data-min-watch="3">
+        <div class="slide-copy compact-copy">
+          <div class="step-number">03</div>
+          <p class="step-kicker">Check the context</p>
+          <h2>Review the visible Request Board <strong>context banner</strong>.</h2>
+          <div class="instruction-grid">
+            <article><span>Where</span><p>The visible yellow banner appears near the top of Booking Details above the expandable sections.</p></article>
+            <article><span>Use</span><p>Read the banner for investigation context before reviewing the Routing Tags history.</p></article>
+            <article><span>Remember</span><p>The banner provides context. The most recent Routing Tags entry is the label used for the eligibility decision.</p></article>
+          </div>
+        </div>
+        <div class="media-shell">
+          <video class="focus-video contain-video" src="assets/03_banner_appears_actual.mp4" poster="assets/03_banner_appears_actual.jpg" muted loop playsinline preload="metadata"></video>
+        </div>
+        <p class="watch-line"><span aria-hidden="true"></span>Watch for: the visible Request Board banner appears before the Routing Tags review. <em class="unlock-note">Continue unlocks after the key action plays.</em></p>
+      </section>
+
+      <section class="slide media-slide" data-label="Step 4 of 5" data-min-watch="5">
+        <div class="slide-copy compact-copy">
+          <div class="step-number">04</div>
+          <p class="step-kicker">Wait for Routing Tags</p>
+          <h2>Let the <strong>Routing Tags</strong> table populate.</h2>
+          <div class="instruction-grid">
+            <article><span>Wait</span><p>In the placeholder demonstration, Routing Tags populates as the page queries finish; no separate click is shown.</p></article>
+            <article><span>Check</span><p>Continue only when the Routing Tags heading and the Updated, label, and sub-label columns are visible.</p></article>
+            <article><span>Avoid</span><p>Do not read or use a label until the heading, columns, and row data are fully visible.</p></article>
+          </div>
+        </div>
+        <div class="media-shell">
+          <video class="focus-video contain-video" src="assets/04_user_labels_populate_actual.mp4" poster="assets/04_user_labels_populate_actual.jpg" muted loop playsinline preload="metadata"></video>
+        </div>
+        <p class="watch-line"><span aria-hidden="true"></span>Watch for: Routing Tags finishes loading and the full heading remains unobstructed. <em class="unlock-note">Continue unlocks after the key action plays.</em></p>
+      </section>
+
+      <section class="slide media-slide" data-label="Step 5 of 5" data-min-watch="8">
+        <div class="slide-copy compact-copy">
+          <div class="step-number">05</div>
+          <p class="step-kicker">Identify the most recent entry</p>
+          <h2>Compare every <strong>Updated</strong> timestamp.</h2>
+          <div class="instruction-grid">
+            <article><span>Scan</span><p>The clip begins with the full page, then zooms into Updated, label, and sub-label so every visible timestamp can be compared.</p></article>
+            <article><span>Use</span><p>Use the most recent entry. In this recording, March 8, 2030 at 10:00 AM is later than the other visible timestamps.</p></article>
+            <article><span>Rule</span><p>Carry that row’s label and sub-label to the eligibility matrix. Do not add, remove, or modify a routing label.</p></article>
+          </div>
+        </div>
+        <div class="media-shell">
+          <video class="focus-video contain-video" src="assets/05_compare_created_zoom_actual.mp4" poster="assets/05_compare_created_zoom_actual.jpg" muted loop playsinline preload="metadata"></video>
+        </div>
+        <p class="watch-line"><span aria-hidden="true"></span>Watch for: the view zooms into Updated, label, and sub-label; compare all timestamps and use the most recent row. <em class="unlock-note">Continue unlocks after the key action plays.</em></p>
+      </section>
+
+      <section class="slide summary-slide" data-label="Review">
+        <div class="summary-copy">
+          <p class="step-kicker">Quick review</p>
+          <h2>New → Request Board → banner → Routing Tags → most recent entry.</h2>
+          <p>Booking Desk completes the booking-state pre-filter first. Request Board is then used to locate the visible context banner and the most recent routing user label.</p>
+        </div>
+        <div class="summary-flow five-step-flow" role="img" aria-label="Five-step TagBoard review sequence">
+          <article class="summary-card"><span class="summary-index">01</span><h3>Confirm New</h3><p>Complete the Booking Desk pre-filter before Request Board.</p></article>
+          <div class="animated-connector"><span></span></div>
+          <article class="summary-card"><span class="summary-index">02</span><h3>Open Request Board</h3><p>Open the matching participant and wait for Booking Details.</p></article>
+          <div class="animated-connector"><span></span></div>
+          <article class="summary-card"><span class="summary-index">03</span><h3>Read the banner</h3><p>Confirm the investigation context.</p></article>
+          <div class="animated-connector"><span></span></div>
+          <article class="summary-card"><span class="summary-index">04</span><h3>Wait for Routing Tags</h3><p>Make sure the heading and columns are visible.</p></article>
+          <div class="animated-connector"><span></span></div>
+          <article class="summary-card"><span class="summary-index">05</span><h3>Use the most recent entry</h3><p>Compare Updated dates, then carry the label and sub-label to the eligibility matrix.</p></article>
+        </div>
+        <div class="summary-warning"><strong>Key rule:</strong> use the most recent Updated entry—not the first row by default.</div>
+      </section>
+
+      <section class="slide completion-slide" data-label="Complete">
+        <div class="completion-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <p class="step-kicker">Walkthrough complete</p>
+        <h2>You can now locate and review the most recent Request Board routing label.</h2>
+        <p>Take the most recent row’s label and sub-label to the approved eligibility matrix, and keep the Request Board review read-only.</p>
+        <button class="secondary-button" id="restartButton" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Review again</button>
+      </section>
+    </div>
+
+    <footer class="controls" aria-label="Presentation controls">
+      <button class="nav-button" id="backButton" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Back</button>
+      <div class="slide-dots" id="slideDots" aria-label="Slides"></div>
+      <div class="gate-hint" id="gateHint" aria-live="polite"></div>
+      <div class="right-controls">
+        <button class="icon-button media-button" id="playPauseButton" type="button" aria-label="Pause loop" title="Pause or play loop"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg><svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg></button>
+        <button class="icon-button media-button" id="replayButton" type="button" aria-label="Replay loop" title="Replay loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg></button>
+        <button class="nav-button nav-button-next" id="nextButton" type="button"><span class="next-label">Next</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Booking Support routing-label eligibility presentation." />
+    <title>Workshop Request Routing</title>
+    <style>
+      :root {
+        --ink: #1f174f;
+        --deep: #291867;
+        --indigo: #4c36b6;
+        --indigo-2: #6d59cf;
+        --lavender: #d9d1ff;
+        --pale: #f2f0ff;
+        --soft: #faf9ff;
+        --line: #ded9fa;
+        --muted: #615b82;
+        --white: #ffffff;
+        --shadow: 0 24px 58px rgba(42, 24, 104, 0.12);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { background: var(--soft); }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 6% 0%, rgba(217, 209, 255, 0.76), transparent 27rem),
+          radial-gradient(circle at 100% 20%, rgba(242, 240, 255, 0.92), transparent 31rem),
+          var(--soft);
+        color: var(--ink);
+        font-family: Calibri, Candara, "Segoe UI", sans-serif;
+      }
+
+      button { font: inherit; }
+
+      .presentation {
+        width: min(1440px, calc(100% - 32px));
+        margin: 24px auto;
+        padding: clamp(20px, 3vw, 42px);
+        border: 1px solid rgba(217, 209, 255, 0.9);
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 26px;
+      }
+
+      .brand,
+      .eyebrow,
+      .panel-kicker,
+      .step-label {
+        margin: 0;
+        color: var(--indigo);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .journey {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .journey-dot {
+        width: 10px;
+        height: 10px;
+        border: 1px solid var(--lavender);
+        border-radius: 50%;
+        background: var(--white);
+        transition: background 280ms ease, border-color 280ms ease, transform 280ms ease;
+      }
+
+      .journey-dot.is-active {
+        border-color: var(--indigo);
+        background: var(--indigo);
+        transform: scale(1.2);
+      }
+
+      .journey-dot.is-complete {
+        border-color: var(--indigo-2);
+        background: var(--lavender);
+      }
+
+      h1, h2, h3, p { margin-top: 0; }
+
+      h1, h2, h3 {
+        color: var(--ink);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+      }
+
+      h1 {
+        max-width: 900px;
+        margin-bottom: 14px;
+        font-size: clamp(2.4rem, 5.2vw, 4.5rem);
+        letter-spacing: -0.055em;
+        line-height: 0.98;
+      }
+
+      h2 {
+        margin-bottom: 8px;
+        font-size: clamp(1.9rem, 3.2vw, 3rem);
+        letter-spacing: -0.045em;
+        line-height: 1.03;
+      }
+
+      h3 {
+        margin-bottom: 0;
+        font-size: 1.12rem;
+        letter-spacing: -0.02em;
+      }
+
+      .stage {
+        display: none;
+        animation: stage-in 430ms ease-out both;
+      }
+
+      .stage.is-active { display: block; }
+
+      .lead {
+        max-width: 850px;
+        margin-bottom: 28px;
+        color: var(--muted);
+        font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+        line-height: 1.5;
+      }
+
+      .intro-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+        gap: clamp(24px, 4vw, 64px);
+        align-items: center;
+        min-height: 500px;
+        padding: clamp(24px, 4vw, 52px);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: linear-gradient(145deg, var(--white), var(--pale));
+      }
+
+      .intro-copy .lead { margin-bottom: 0; }
+
+      .label-visual {
+        position: relative;
+        display: grid;
+        gap: 18px;
+        padding: clamp(20px, 3.2vw, 38px);
+        border-radius: 26px;
+        background: var(--deep);
+        box-shadow: 0 22px 42px rgba(41, 24, 103, 0.24);
+      }
+
+      .label-visual::before {
+        position: absolute;
+        inset: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 18px;
+        content: "";
+        pointer-events: none;
+      }
+
+      .visual-node {
+        position: relative;
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 13px;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.09);
+        color: var(--white);
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      .intro-hero.is-playing .visual-node { animation: node-in 660ms ease-out forwards; }
+      .intro-hero.is-playing .visual-node:nth-child(1) { animation-delay: 100ms; }
+      .intro-hero.is-playing .visual-node:nth-child(2) { animation-delay: 850ms; }
+      .intro-hero.is-playing .visual-node:nth-child(3) { animation-delay: 1.6s; }
+
+      .node-icon {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--white);
+        color: var(--deep);
+      }
+
+      .node-title {
+        display: block;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.98rem;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+
+      .node-text {
+        display: block;
+        margin-top: 3px;
+        color: var(--lavender);
+        font-size: 0.9rem;
+        line-height: 1.3;
+      }
+
+      .stage-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .action-right { margin-left: auto; }
+
+      .button {
+        min-height: 48px;
+        padding: 12px 19px;
+        border: 1px solid var(--indigo);
+        border-radius: 14px;
+        background: var(--indigo);
+        color: var(--white);
+        cursor: pointer;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.92rem;
+        font-weight: 800;
+        transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease, transform 180ms ease;
+      }
+
+      .button:hover:not(:disabled),
+      .button:focus-visible:not(:disabled) {
+        border-color: var(--deep);
+        background: var(--deep);
+        box-shadow: 0 10px 22px rgba(41, 24, 103, 0.22);
+        outline: 3px solid var(--lavender);
+        outline-offset: 3px;
+        transform: translateY(-2px);
+      }
+
+      .button.is-secondary {
+        border-color: var(--line);
+        background: var(--white);
+        color: var(--indigo);
+      }
+
+      .button.is-secondary:hover:not(:disabled),
+      .button.is-secondary:focus-visible:not(:disabled) {
+        border-color: var(--indigo);
+        background: var(--pale);
+        color: var(--deep);
+      }
+
+      .button:disabled {
+        border-color: var(--line);
+        background: #eeeafd;
+        color: #8b84b7;
+        cursor: not-allowed;
+      }
+
+      .button.is-hidden { display: none; }
+
+      .intro-start {
+        margin-top: 26px;
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      .intro-start.is-ready { animation: node-in 500ms ease-out forwards; }
+
+      .eligibility-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(330px, 0.82fr);
+        gap: clamp(22px, 3vw, 42px);
+        align-items: stretch;
+      }
+
+      .label-panel {
+        padding: clamp(20px, 2.7vw, 34px);
+        border: 1px solid var(--line);
+        border-radius: 25px;
+        background: var(--white);
+      }
+
+      .panel-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: baseline;
+        margin-bottom: 17px;
+      }
+
+      .panel-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.91rem;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      .eligible-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .eligible-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        min-height: 114px;
+        padding: 16px;
+        border: 1.5px solid var(--line);
+        border-radius: 18px;
+        background: var(--white);
+        color: var(--ink);
+        cursor: pointer;
+        text-align: left;
+        transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+      }
+
+      .eligible-card:hover,
+      .eligible-card:focus-visible {
+        border-color: var(--indigo);
+        box-shadow: 0 10px 24px rgba(76, 54, 182, 0.12);
+        outline: none;
+        transform: translateY(-2px);
+      }
+
+      .eligible-card.is-selected {
+        border-color: var(--indigo);
+        background: var(--pale);
+      }
+
+      .eligible-card.is-reviewed:not(.is-selected) { border-color: #c7bfff; }
+
+      .card-icon {
+        display: grid;
+        flex: 0 0 auto;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--pale);
+        color: var(--indigo);
+        transition: background 180ms ease, color 180ms ease;
+      }
+
+      .eligible-card.is-reviewed .card-icon {
+        background: var(--indigo);
+        color: var(--white);
+      }
+
+      .card-title {
+        display: block;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.18;
+      }
+
+      .card-meta {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.87rem;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      .method-panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        padding: clamp(22px, 3vw, 34px);
+        border: 1px solid #cbc4ff;
+        border-radius: 25px;
+        background: linear-gradient(150deg, var(--pale), #e7e2ff);
+      }
+
+      .method-panel h3 {
+        margin-top: 8px;
+        font-size: clamp(1.4rem, 2.3vw, 1.9rem);
+        line-height: 1.08;
+      }
+
+      .method-copy {
+        min-height: 88px;
+        margin: 15px 0 0;
+        color: var(--muted);
+        font-size: 1.03rem;
+        line-height: 1.45;
+      }
+
+      .method-chip {
+        display: inline-flex;
+        align-items: center;
+        width: max-content;
+        max-width: 100%;
+        margin-top: 23px;
+        padding: 10px 13px;
+        border-radius: 999px;
+        background: var(--indigo);
+        color: var(--white);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.83rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .method-note {
+        margin: auto 0 0;
+        padding-top: 25px;
+        color: var(--indigo);
+        font-size: 0.93rem;
+        font-weight: 800;
+        line-height: 1.4;
+      }
+
+      .escalation-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
+        gap: clamp(22px, 3vw, 42px);
+        align-items: stretch;
+      }
+
+      .matrix-panel {
+        padding: clamp(20px, 2.7vw, 34px);
+        border: 1px solid var(--line);
+        border-radius: 25px;
+        background: var(--white);
+      }
+
+      .matrix-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .matrix-item {
+        display: grid;
+        grid-template-columns: 30px 1fr;
+        gap: 10px;
+        align-items: center;
+        min-height: 76px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: var(--soft);
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      .stage.is-active .matrix-item { animation: item-in 420ms ease-out forwards; animation-delay: var(--delay); }
+
+      .matrix-icon {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--deep);
+        color: var(--white);
+      }
+
+      .matrix-name {
+        display: block;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.89rem;
+        font-weight: 800;
+        line-height: 1.18;
+      }
+
+      .matrix-sublabel {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.22;
+      }
+
+      .escalate-panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        padding: clamp(22px, 3vw, 34px);
+        border: 1px solid var(--deep);
+        border-radius: 25px;
+        background: linear-gradient(148deg, var(--deep), #391f85);
+        color: var(--white);
+        box-shadow: 0 18px 36px rgba(41, 24, 103, 0.18);
+      }
+
+      .escalate-panel .panel-kicker { color: var(--lavender); }
+      .escalate-panel h3 { margin-top: 8px; color: var(--white); font-size: clamp(1.4rem, 2.3vw, 1.9rem); line-height: 1.08; }
+      .escalate-copy { min-height: 68px; margin: 15px 0 0; color: #f2f0ff; font-size: 1.03rem; line-height: 1.43; }
+
+      .reveal-button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 13px 15px;
+        border: 1px solid var(--white);
+        border-radius: 14px;
+        background: var(--white);
+        color: var(--deep);
+        cursor: pointer;
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.92rem;
+        font-weight: 800;
+        transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+      }
+
+      .reveal-button:hover,
+      .reveal-button:focus-visible {
+        background: var(--lavender);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+        outline: 3px solid var(--lavender);
+        outline-offset: 3px;
+        transform: translateY(-2px);
+      }
+
+      .reveal-button[hidden] { display: none; }
+
+      .escalation-steps { margin: 22px 0 0; padding: 0; list-style: none; }
+
+      .escalation-step {
+        display: grid;
+        grid-template-columns: 35px 1fr;
+        gap: 11px;
+        align-items: center;
+        margin-top: 10px;
+        padding: 11px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--white);
+        font-weight: 700;
+        line-height: 1.28;
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .escalation-step:first-child { margin-top: 0; }
+
+      .escalation-step.is-visible { animation: step-in 680ms ease-out forwards; }
+
+      .step-number {
+        display: grid;
+        place-items: center;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: var(--white);
+        color: var(--deep);
+        font-family: Arial, Avenir Next, "Segoe UI", sans-serif;
+        font-size: 0.77rem;
+        font-weight: 800;
+      }
+
+      .escalation-guidance {
+        margin: 22px 0 0;
+        padding: 13px 14px;
+        border-left: 4px solid var(--lavender);
+        border-radius: 0 12px 12px 0;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--white);
+        font-size: 0.94rem;
+        font-weight: 700;
+        line-height: 1.4;
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .escalation-guidance.is-visible { animation: step-in 680ms ease-out forwards; }
+
+      .next-after-reveal {
+        margin-top: auto;
+        padding-top: 22px;
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      .next-after-reveal.is-ready { animation: step-in 520ms ease-out forwards; }
+
+      .next-after-reveal .button {
+        width: 100%;
+        border-color: var(--lavender);
+        background: var(--indigo-2);
+      }
+
+      .next-after-reveal .button:hover,
+      .next-after-reveal .button:focus-visible {
+        border-color: var(--white);
+        background: var(--white);
+        color: var(--deep);
+      }
+
+      .recap-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 27px;
+        background: var(--white);
+      }
+
+      .recap-column { min-height: 270px; padding: clamp(24px, 4vw, 44px); }
+      .recap-eligible { background: linear-gradient(145deg, var(--pale), #e8e3ff); }
+      .recap-escalate { background: linear-gradient(145deg, var(--deep), #391f85); color: var(--white); }
+      .recap-escalate h3, .recap-escalate p { color: var(--white); }
+      .recap-column h3 { margin-top: 10px; font-size: clamp(1.4rem, 2.3vw, 2rem); }
+      .recap-column p { max-width: 440px; margin: 12px 0 0; color: var(--muted); font-size: 1.02rem; line-height: 1.45; }
+      .recap-escalate .panel-kicker { color: var(--lavender); }
+      .recap-escalate p { color: #eeeaff; }
+      .finish-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 20px;
+        padding: 21px 23px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--soft);
+      }
+
+      .finish-card p { margin: 5px 0 0; color: var(--muted); line-height: 1.4; }
+
+      .finish-button { flex: 0 0 auto; }
+
+      .finished-message {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+        padding: 15px 17px;
+        border: 1px solid #c9c1ff;
+        border-radius: 16px;
+        background: var(--pale);
+        color: var(--indigo);
+        font-weight: 800;
+        animation: stage-in 420ms ease-out;
+      }
+
+      .finished-message.is-visible { display: flex; }
+
+      .finished-icon {
+        display: grid;
+        flex: 0 0 auto;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--indigo);
+        color: var(--white);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @keyframes stage-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes node-in {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes item-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes step-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 920px) {
+        .intro-hero,
+        .eligibility-layout,
+        .escalation-layout { grid-template-columns: 1fr; }
+        .recap-card { grid-template-columns: 1fr; }
+        .recap-column { min-height: auto; }
+      }
+
+      @media (max-width: 620px) {
+        .presentation { width: min(100% - 18px, 1440px); margin: 9px auto; padding: 21px 17px; border-radius: 21px; }
+        .topbar { margin-bottom: 22px; }
+        .intro-hero { min-height: auto; padding: 23px 18px; }
+        .eligible-list, .matrix-grid { grid-template-columns: 1fr; }
+        .panel-heading, .finish-card { align-items: flex-start; flex-direction: column; }
+        .panel-heading p { text-align: left; }
+        .finish-button { width: 100%; }
+        .stage-actions { align-items: stretch; flex-direction: column-reverse; }
+        .action-right { width: 100%; margin-left: 0; }
+        .stage-actions .button { width: 100%; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          scroll-behavior: auto !important;
+          animation-delay: 0ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  <style id="course-font-standard">html,body,button,input,select,textarea{font-family:Calibri,Arial,sans-serif}h1,h2,h3,h4,h5,h6,[role="heading"],.title,.headline,[class*="-title"],[class*="_title"],.question-prompt,.result-headline{font-family:Arial,Arial,sans-serif!important}</style></head>
+  <body>
+    <main class="presentation" aria-labelledby="presentation-title">
+      <div class="topbar">
+        <p class="brand">Booking Support</p>
+        <div class="journey" aria-label="Presentation progress">
+          <span class="journey-dot is-active" data-dot="0" aria-hidden="true"></span>
+          <span class="journey-dot" data-dot="1" aria-hidden="true"></span>
+          <span class="journey-dot" data-dot="2" aria-hidden="true"></span>
+          <span class="journey-dot" data-dot="3" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <section class="stage is-active" data-stage="0" aria-labelledby="presentation-title">
+        <div class="intro-hero" id="introHero">
+          <div class="intro-copy">
+            <p class="eyebrow">Decision guide</p>
+            <h1 id="presentation-title">routing label eligibility</h1>
+            <p class="lead">Review the most recent routing label in Request Board to determine whether support desk booking update can continue—or whether event coordinator must take over.</p>
+            <div class="intro-start" id="introStart">
+              <button class="button" id="startButton" type="button" disabled>Start review</button>
+            </div>
+          </div>
+
+          <div class="label-visual" aria-label="Decision sequence">
+            <div class="visual-node">
+              <span class="node-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="M9 12h6" /></svg></span>
+              <span><span class="node-title">New booking</span><span class="node-text">Review the participant’s booking update path.</span></span>
+            </div>
+            <div class="visual-node">
+              <span class="node-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h8M8 15h4" /></svg></span>
+              <span><span class="node-title">Most recent label</span><span class="node-text">Use Request Board to identify the correct path.</span></span>
+            </div>
+            <div class="visual-node">
+              <span class="node-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg></span>
+              <span><span class="node-title">Choose the path</span><span class="node-text">Use the required method or escalate to event coordinator.</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stage" data-stage="1" aria-labelledby="eligible-title">
+        <p class="eyebrow">Eligible path</p>
+        <h2 id="eligible-title">Eligible labels &amp; method</h2>
+        <p class="lead">Select each eligible group to review the verification method. All four groups must be reviewed before you continue.</p>
+
+        <div class="eligibility-layout">
+          <section class="label-panel" aria-label="Eligible labels">
+            <div class="panel-heading">
+              <h3>Eligible for support desk BookingDemo</h3>
+              <p id="eligibleProgress" aria-live="polite">0 of 4 reviewed</p>
+            </div>
+            <div class="eligible-list">
+              <button class="eligible-card" type="button" data-key="exposure" aria-pressed="false">
+                <span class="card-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3.5 5.7v5.6c0 5.3 3.6 9.9 8.5 10.7 4.9-.8 8.5-5.4 8.5-10.7V5.7L12 2Z" /><path d="m8.5 12 2.2 2.2L15.8 9" /></svg></span>
+                <span><span class="card-title">Session Change</span><span class="card-meta">Brief + Checklist</span></span>
+              </button>
+              <button class="eligible-card" type="button" data-key="FormatChange" aria-pressed="false">
+                <span class="card-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8" /><path d="M12 8v4M12 16h.01" /></svg></span>
+                <span><span class="card-title">Format change</span><span class="card-meta">All sublabels · Brief + Checklist</span></span>
+              </button>
+              <button class="eligible-card" type="button" data-key="nolabel" aria-pressed="false">
+                <span class="card-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8" /><path d="M9 12h6" /></svg></span>
+                <span><span class="card-title">Routine</span><span class="card-meta">Brief only</span></span>
+              </button>
+              <button class="eligible-card" type="button" data-key="Standard" aria-pressed="false">
+                <span class="card-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6" /></svg></span>
+                <span><span class="card-title">Standard</span><span class="card-meta">Brief only</span></span>
+              </button>
+            </div>
+          </section>
+
+          <aside class="method-panel" aria-live="polite" aria-atomic="true">
+            <p class="panel-kicker">Required method</p>
+            <h3 id="eligibleDetailTitle">Choose an eligible label</h3>
+            <p class="method-copy" id="eligibleDetailCopy">The method will appear here. Use the most recent label to determine the correct booking update path.</p>
+            <span class="method-chip" id="eligibleMethod">Review each label</span>
+            <p class="method-note" id="eligibleNote">The outcome panel stays light indigo because it belongs to the eligible path.</p>
+          </aside>
+        </div>
+
+        <div class="stage-actions">
+          <button class="button is-secondary" type="button" data-go="0">Back</button>
+          <div class="action-right"><button class="button" id="eligibleNext" type="button" disabled>Continue to escalation labels</button></div>
+        </div>
+      </section>
+
+      <section class="stage" data-stage="2" aria-labelledby="ineligible-title">
+        <p class="eyebrow">Escalation path</p>
+        <h2 id="ineligible-title">Ineligible labels — escalate</h2>
+        <p class="lead">These labels do not qualify for support desk BookingDemo. Review the label and sublabel matrix, then reveal the required response.</p>
+
+        <div class="escalation-layout">
+          <section class="matrix-panel" aria-label="Ineligible labels and sublabels">
+            <div class="panel-heading"><h3>Ineligible labels and sublabels</h3></div>
+            <div class="matrix-grid">
+              <div class="matrix-item" style="--delay: 70ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4M12 16h.01" /><path d="M10.3 3.4 2.8 17a2 2 0 0 0 1.75 3h14.9a2 2 0 0 0 1.75-3L13.7 3.4a2 2 0 0 0-3.4 0Z" /></svg></span><span><span class="matrix-name">Access Request</span><span class="matrix-sublabel">N/A</span></span></div>
+              <div class="matrix-item" style="--delay: 130ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></span><span><span class="matrix-name">Room Conflict</span><span class="matrix-sublabel">Any</span></span></div>
+              <div class="matrix-item" style="--delay: 190ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></span><span><span class="matrix-name">Schedule Conflict</span><span class="matrix-sublabel">Any</span></span></div>
+              <div class="matrix-item" style="--delay: 250ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></span><span><span class="matrix-name">Equipment Request</span><span class="matrix-sublabel">Any</span></span></div>
+              <div class="matrix-item" style="--delay: 310ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M8 12h8" /></svg></span><span><span class="matrix-name">Venue Change</span><span class="matrix-sublabel">N/A</span></span></div>
+              <div class="matrix-item" style="--delay: 370ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg></span><span><span class="matrix-name">SpecialRequest</span><span class="matrix-sublabel">Room / Equipment / Scheduling / Accessibility</span></span></div>
+              <div class="matrix-item" style="--delay: 430ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg></span><span><span class="matrix-name">Booking Detail</span><span class="matrix-sublabel">Room_change / Schedule_change / Access_request</span></span></div>
+              <div class="matrix-item" style="--delay: 490ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="2" /></svg></span><span><span class="matrix-name">VenueRequest</span><span class="matrix-sublabel">Any</span></span></div>
+              <div class="matrix-item" style="--delay: 550ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.4 2.8 17a2 2 0 0 0 1.75 3h14.9a2 2 0 0 0 1.75-3L13.7 3.4a2 2 0 0 0-3.4 0Z" /></svg></span><span><span class="matrix-name">OtherRequest</span><span class="matrix-sublabel">N/A</span></span></div>
+              <div class="matrix-item" style="--delay: 610ms"><span class="matrix-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8" /><path d="M12 8v4M12 16h.01" /></svg></span><span><span class="matrix-name">Other labels/fallback</span><span class="matrix-sublabel">Any</span></span></div>
+            </div>
+          </section>
+
+          <aside class="escalate-panel" aria-live="polite" aria-atomic="true">
+            <p class="panel-kicker">Required response</p>
+            <h3>Escalate to event coordinator</h3>
+            <p class="escalate-copy">One response applies to every label in this matrix.</p>
+            <button class="reveal-button" id="revealEscalation" type="button" aria-expanded="false" aria-controls="escalationSteps">Reveal the required steps</button>
+            <ol class="escalation-steps" id="escalationSteps">
+              <li class="escalation-step" aria-hidden="true"><span class="step-number">1</span><span>Collect Brief and record the outcome</span></li>
+              <li class="escalation-step" aria-hidden="true"><span class="step-number">2</span><span>Send or review the Checklist Desk Checklist request</span></li>
+              <li class="escalation-step" aria-hidden="true"><span class="step-number">3</span><span>Escalate through the Booking Support path</span></li>
+            </ol>
+            <p class="escalation-guidance" id="escalationGuidance" aria-hidden="true">Collect all available verification signals, including Brief and Checklist, and escalate to event coordinator—even when the participant passes the other verification steps.</p>
+            <div class="next-after-reveal" id="ineligibleNextWrap" hidden>
+              <button class="button" id="ineligibleNext" type="button" disabled>Continue to recap</button>
+            </div>
+          </aside>
+        </div>
+
+        <div class="stage-actions">
+          <button class="button is-secondary" type="button" data-go="1">Back</button>
+        </div>
+      </section>
+
+      <section class="stage" data-stage="3" aria-labelledby="recap-title">
+        <p class="eyebrow">Decision recap</p>
+        <h2 id="recap-title">Choose the correct path</h2>
+        <p class="lead">The most recent label determines the outcome: use the verification method for eligible labels, or hand the case to event coordinator when the label is ineligible or unrecognized.</p>
+
+        <div class="recap-card">
+          <article class="recap-column recap-eligible">
+            <p class="panel-kicker">Eligible</p>
+            <h3>Continue with the required method</h3>
+            <p>Session Change and Format change use Brief + Checklist. Routine and Standard use Brief only.</p>
+          </article>
+          <article class="recap-column recap-escalate">
+            <p class="panel-kicker">Escalate</p>
+            <h3>event coordinator makes the decision</h3>
+            <p>For every ineligible or unrecognized label, collect the required signals and escalate instead of completing support desk booking update.</p>
+          </article>
+        </div>
+
+        <div class="finish-card">
+          <div><h3>Review complete</h3><p>You have reviewed the eligible verification methods and the escalation path.</p></div>
+          <button class="button finish-button" id="finishButton" type="button">Finish</button>
+        </div>
+        <div class="finished-message" id="finishedMessage" role="status"><span class="finished-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6" /></svg></span><span>Review complete. You can continue in the course.</span></div>
+
+        <div class="stage-actions"><button class="button is-secondary" type="button" data-go="2">Back</button></div>
+      </section>
+
+      <p class="sr-only" id="activityStatus" aria-live="polite"></p>
+    </main>
+
+    <script>
+      (function () {
+        const stages = Array.from(document.querySelectorAll('.stage'));
+        const dots = Array.from(document.querySelectorAll('.journey-dot'));
+        const status = document.getElementById('activityStatus');
+        const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const wait = (callback, delay) => window.setTimeout(callback, reducedMotion ? 0 : delay);
+        let activeStage = 0;
+        let introStarted = false;
+        let escalationRevealed = false;
+        let completeSent = false;
+
+        function updateDots() {
+          dots.forEach((dot, index) => {
+            dot.classList.toggle('is-active', index === activeStage);
+            dot.classList.toggle('is-complete', index < activeStage);
+          });
+        }
+
+        function goTo(index) {
+          activeStage = index;
+          stages.forEach((stage, stageIndex) => stage.classList.toggle('is-active', stageIndex === index));
+          updateDots();
+          status.textContent = `Presentation step ${index + 1} of ${stages.length}.`;
+          if (index === 0) runIntro();
+          const heading = stages[index].querySelector('h1, h2');
+          if (heading) heading.setAttribute('tabindex', '-1');
+        }
+
+        function runIntro() {
+          if (introStarted) return;
+          introStarted = true;
+          const hero = document.getElementById('introHero');
+          const start = document.getElementById('introStart');
+          const button = document.getElementById('startButton');
+          hero.classList.add('is-playing');
+          wait(() => {
+            start.classList.add('is-ready');
+            button.disabled = false;
+            status.textContent = 'Decision guide ready. Start review is now available.';
+          }, 2420);
+        }
+
+        document.querySelectorAll('[data-go]').forEach((button) => {
+          button.addEventListener('click', () => goTo(Number(button.dataset.go)));
+        });
+
+        document.getElementById('startButton').addEventListener('click', () => goTo(1));
+
+        const eligibleDetails = {
+          exposure: {
+            title: 'Session Change',
+            copy: "Eligible for support desk BookingDemo. Complete Brief and Checklist before booking update.",
+            method: 'Brief + Checklist',
+            note: 'Session Change is eligible with Brief + Checklist.'
+          },
+          FormatChange: {
+            title: "Format change (all sublabels)",
+            copy: 'Online, In-person, Hybrid, and Unspecified are eligible for support desk BookingDemo.',
+            method: 'Brief + Checklist',
+            note: "All Format change sublabels use Brief + Checklist."
+          },
+          nolabel: {
+            title: 'Routine',
+            copy: "Eligible for support desk BookingDemo. Complete Brief before booking update.",
+            method: 'Brief only',
+            note: 'Routine uses Brief only.'
+          },
+          Standard: {
+            title: 'Standard',
+            copy: 'Eligible for support desk BookingDemo. A New booking with a Standard label may indicate a labeling error.',
+            method: 'Brief only',
+            note: "Use Brief only and include the appropriate note for event coordinator."
+          }
+        };
+
+        const eligibleCards = Array.from(document.querySelectorAll('.eligible-card'));
+        const eligibleSeen = new Set();
+        const eligibleProgress = document.getElementById('eligibleProgress');
+        const eligibleNext = document.getElementById('eligibleNext');
+        const eligibleTitle = document.getElementById('eligibleDetailTitle');
+        const eligibleCopy = document.getElementById('eligibleDetailCopy');
+        const eligibleMethod = document.getElementById('eligibleMethod');
+        const eligibleNote = document.getElementById('eligibleNote');
+
+        eligibleCards.forEach((card) => {
+          card.addEventListener('click', () => {
+            const content = eligibleDetails[card.dataset.key];
+            eligibleCards.forEach((item) => {
+              const selected = item === card;
+              item.classList.toggle('is-selected', selected);
+              item.setAttribute('aria-pressed', String(selected));
+            });
+            card.classList.add('is-reviewed');
+            eligibleSeen.add(card.dataset.key);
+            eligibleTitle.textContent = content.title;
+            eligibleCopy.textContent = content.copy;
+            eligibleMethod.textContent = content.method;
+            eligibleNote.textContent = content.note;
+            eligibleProgress.textContent = `${eligibleSeen.size} of ${eligibleCards.length} reviewed`;
+            status.textContent = `${content.title} reviewed. ${content.method}.`;
+            if (eligibleSeen.size === eligibleCards.length) {
+              eligibleNext.disabled = false;
+              eligibleNext.textContent = 'Continue to escalation labels';
+              status.textContent = 'All eligible methods reviewed. Continue to escalation labels is now available.';
+            }
+          });
+        });
+
+        eligibleNext.addEventListener('click', () => goTo(2));
+
+        const revealEscalation = document.getElementById('revealEscalation');
+        const escalationSteps = Array.from(document.querySelectorAll('.escalation-step'));
+        const escalationGuidance = document.getElementById('escalationGuidance');
+        const ineligibleNextWrap = document.getElementById('ineligibleNextWrap');
+        const ineligibleNext = document.getElementById('ineligibleNext');
+
+        revealEscalation.addEventListener('click', () => {
+          if (escalationRevealed) return;
+          escalationRevealed = true;
+          revealEscalation.hidden = true;
+          revealEscalation.setAttribute('aria-expanded', 'true');
+          status.textContent = 'The escalation steps are appearing one at a time.';
+          escalationSteps.forEach((step, index) => {
+            wait(() => {
+              step.classList.add('is-visible');
+              step.setAttribute('aria-hidden', 'false');
+              status.textContent = `Escalation step ${index + 1} of ${escalationSteps.length} revealed.`;
+            }, index * 900 + 120);
+          });
+          wait(() => {
+            escalationGuidance.classList.add('is-visible');
+            escalationGuidance.setAttribute('aria-hidden', 'false');
+            status.textContent = 'Final escalation guidance revealed.';
+          }, 2920);
+          wait(() => {
+            ineligibleNextWrap.hidden = false;
+            ineligibleNextWrap.classList.add('is-ready');
+            ineligibleNext.disabled = false;
+            status.textContent = 'The escalation path has been reviewed. Continue to recap is now available.';
+          }, 3660);
+        });
+
+        ineligibleNext.addEventListener('click', () => goTo(3));
+
+        document.getElementById('finishButton').addEventListener('click', () => {
+          if (completeSent) return;
+          completeSent = true;
+          const finishButton = document.getElementById('finishButton');
+          finishButton.disabled = true;
+          finishButton.textContent = 'Review complete';
+          document.getElementById('finishedMessage').classList.add('is-visible');
+          status.textContent = 'Review complete. You can continue in the course.';
+          window.parent.postMessage({ type: 'complete' }, '*');
+        });
+
+        runIntro();
+      })();
+    </script>
+  </body>
+</html>

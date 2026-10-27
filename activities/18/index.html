@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Booking Status Hotspots</title>
+  <style>
+    :root {
+      --indigo-950: #08002f;
+      --indigo-900: #12004d;
+      --indigo-800: #21046e;
+      --indigo-700: #3525c9;
+      --indigo-600: #4a44f2;
+      --indigo-100: #ececff;
+      --lavender: #f6f3ff;
+      --sky: #dff5ff;
+      --white: #ffffff;
+      --text: #172033;
+      --muted: #606a7d;
+      --line: rgba(255,255,255,.36);
+      --soft-line: rgba(20, 17, 72, .12);
+      --green: #1d7f55;
+      --green-bg: #e4f8ee;
+      --amber: #a16400;
+      --amber-bg: #fff1cd;
+      --red: #b42318;
+      --red-bg: #ffe4e2;
+      --blue: #2f49d8;
+      --blue-bg: #e7ecff;
+      --purple: #6e3fd6;
+      --purple-bg: #f0e8ff;
+      --orange: #c25700;
+      --orange-bg: #ffe6d1;
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --shadow: 0 28px 80px rgba(8, 4, 49, .30);
+      --card-shadow: 0 18px 50px rgba(12, 16, 45, .22);
+      --focus: 0 0 0 4px rgba(88, 82, 255, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 0;
+      overflow: hidden;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: transparent;
+    }
+
+    body {
+      padding: 0;
+    }
+
+    .activity {
+      width: 100%;
+      max-width: 1400px;
+      height: auto;
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      position: relative;
+      overflow: hidden;
+      border-radius: clamp(0px, 2vw, var(--radius-xl));
+      box-shadow: var(--shadow);
+      background:
+        radial-gradient(circle at 82% 12%, rgba(110, 225, 255, .60) 0 13%, transparent 32%),
+        radial-gradient(circle at 19% 85%, rgba(95, 67, 255, .52) 0 14%, transparent 36%),
+        linear-gradient(135deg, #07002d 0%, #15005c 39%, #2939d9 74%, #8bdfff 100%);
+      isolation: isolate;
+    }
+
+    .activity::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255,255,255,.07) 1px, transparent 1px);
+      background-size: 72px 72px;
+      opacity: .33;
+      z-index: -2;
+      mask-image: linear-gradient(120deg, rgba(0,0,0,.2), rgba(0,0,0,.85), rgba(0,0,0,.2));
+    }
+
+    .activity::after {
+      content: "";
+      position: absolute;
+      width: 52%;
+      height: 52%;
+      right: -15%;
+      bottom: -23%;
+      border-radius: 999px;
+      background: rgba(255,255,255,.14);
+      filter: blur(2px);
+      z-index: -1;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .orb.one {
+      width: 250px;
+      height: 250px;
+      left: -92px;
+      top: 130px;
+      background: rgba(255,255,255,.14);
+    }
+
+    .orb.two {
+      width: 120px;
+      height: 120px;
+      right: 132px;
+      top: 92px;
+      background: rgba(255,255,255,.12);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 30px 8px;
+      color: var(--white);
+      min-height: 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(255,255,255,.27);
+      border-radius: 999px;
+      background: rgba(255,255,255,.11);
+      backdrop-filter: blur(12px);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow svg { width: 15px; height: 15px; }
+
+    h1 {
+      margin: 8px 0 0;
+      max-width: 790px;
+      font-size: clamp(25px, 2.7vw, 38px);
+      line-height: 1.02;
+      letter-spacing: -.035em;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size: 12px;
+      line-height: 1.35;
+      max-width: 760px;
+    }
+
+    .progress-card {
+      min-width: 208px;
+      padding: 13px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.24);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.12);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: rgba(255,255,255,.88);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .meter {
+      margin-top: 10px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.21);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffffff, #bfeeff);
+      transition: width .32s ease;
+    }
+
+    .count {
+      margin-top: 8px;
+      font-size: 10px;
+      color: rgba(255,255,255,.78);
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1.16fr) minmax(330px, .84fr);
+      gap: 18px;
+      padding: 6px 30px 22px;
+      min-height: 0;
+      height: auto;
+    }
+
+    .graphic {
+      position: relative;
+      min-height: 0;
+      height: 100%;
+      padding: 15px 18px 15px 82px;
+      border-radius: 26px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.77)),
+        radial-gradient(circle at 20% 0, rgba(224,244,255,.95), transparent 38%);
+      border: 1px solid rgba(255,255,255,.72);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .graphic::before {
+      content: "";
+      position: absolute;
+      inset: 30px auto 30px 40px;
+      width: 3px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(74,68,242,.12), rgba(74,68,242,.45), rgba(74,68,242,.12));
+    }
+
+    .graphic-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+      min-height: 29px;
+    }
+
+    .graphic-title {
+      margin: 0;
+      color: var(--indigo-950);
+      font-size: 14px;
+      letter-spacing: -.01em;
+    }
+
+    .next-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--indigo-100);
+      color: var(--indigo-700);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .banners {
+      display: grid;
+      grid-template-rows: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      height: calc(100% - 38px);
+      min-height: 0;
+    }
+
+    .banner {
+      position: relative;
+      min-height: 0;
+      height: auto;
+      border-radius: 18px;
+      border: 2px solid rgba(255,255,255,.78);
+      box-shadow: 0 12px 30px rgba(12, 16, 45, .10);
+      background: #fff;
+      overflow: visible;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, opacity .2s ease, filter .2s ease;
+    }
+
+    .banner.active {
+      transform: translateX(5px);
+      border-color: rgba(74,68,242,.70);
+      box-shadow: 0 18px 42px rgba(74, 68, 242, .20);
+    }
+
+    .banner.locked {
+      opacity: .55;
+      filter: saturate(.7);
+    }
+
+    .banner.done {
+      opacity: .98;
+    }
+
+    .banner-img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 16px;
+      object-fit: cover;
+      object-position: center;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hotspot-shell {
+      position: absolute;
+      left: -63px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      width: 47px;
+      height: 47px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255,255,255,.42);
+      border: 1px solid rgba(255,255,255,.84);
+      box-shadow: 0 12px 24px rgba(24, 23, 84, .18);
+    }
+
+    .hotspot {
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: var(--indigo-700);
+      background: var(--white);
+      box-shadow: inset 0 0 0 2px rgba(74,68,242,.18), 0 8px 18px rgba(25, 24, 85, .18);
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, color .2s ease, opacity .2s ease;
+    }
+
+    .hotspot svg { width: 18px; height: 18px; }
+
+    .hotspot:hover:not(:disabled) { transform: scale(1.08); }
+    .hotspot:focus-visible { outline: none; box-shadow: var(--focus), inset 0 0 0 2px rgba(74,68,242,.18), 0 8px 18px rgba(25, 24, 85, .18); }
+    .hotspot:disabled { cursor: not-allowed; color: #798196; background: #f1f3f8; opacity: .9; }
+
+    .banner.done .hotspot {
+      color: #fff;
+      background: var(--green);
+    }
+
+    .state-pill {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.86);
+      color: var(--indigo-800);
+      border: 1px solid rgba(23,32,51,.08);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    }
+
+    .state-pill svg { width: 12px; height: 12px; }
+
+    .details {
+      min-height: 0;
+      height: 100%;
+      border-radius: 26px;
+      background: rgba(255,255,255,.93);
+      border: 1px solid rgba(255,255,255,.78);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .details-top {
+      padding: 18px 22px 14px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.25), transparent 32%),
+        linear-gradient(135deg, var(--indigo-950), var(--indigo-700));
+    }
+
+    .details-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 9px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.76);
+    }
+
+    .details-label svg { width: 15px; height: 15px; }
+
+    .details-title {
+      margin: 0;
+      font-size: clamp(22px, 2.35vw, 30px);
+      letter-spacing: -.035em;
+      line-height: 1.05;
+    }
+
+    .details-subtitle {
+      margin: 8px 0 0;
+      color: rgba(255,255,255,.80);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .details-body {
+      padding: 15px 20px 14px;
+      display: grid;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      align-content: start;
+    }
+
+    .welcome {
+      padding: 2px 2px 0;
+    }
+
+    .badge {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .badge.proceed { color: var(--green); background: var(--green-bg); border-color: rgba(29,127,85,.18); }
+    .badge.stop { color: var(--red); background: var(--red-bg); border-color: rgba(180,35,24,.17); }
+    .badge.done { color: var(--blue); background: var(--blue-bg); border-color: rgba(47,73,216,.15); }
+    .badge.updated { color: var(--purple); background: var(--purple-bg); border-color: rgba(110,63,214,.15); }
+    .badge.caution { color: var(--amber); background: var(--amber-bg); border-color: rgba(161,100,0,.15); }
+    .badge.review { color: var(--orange); background: var(--orange-bg); border-color: rgba(194,87,0,.15); }
+
+    .info-card {
+      padding: 13px 14px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--soft-line);
+      box-shadow: 0 10px 24px rgba(20, 20, 65, .07);
+    }
+
+    .info-card h3 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 6px;
+      color: var(--indigo-900);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .info-card h3 svg { width: 16px; height: 16px; }
+
+    .info-card p {
+      margin: 0;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding: 12px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid rgba(23,32,51,.08);
+      background: linear-gradient(180deg, rgba(246,248,255,.7), rgba(255,255,255,.95));
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .next-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--indigo-700);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(53,37,201,.25);
+      transition: transform .2s ease, opacity .2s ease;
+      white-space: nowrap;
+    }
+
+    .next-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .next-btn:focus-visible { outline: none; box-shadow: var(--focus), 0 12px 28px rgba(53,37,201,.25); }
+    .next-btn:disabled { cursor: default; opacity: .6; }
+
+    .complete {
+      display: none;
+      margin-top: 2px;
+      padding: 14px;
+      border-radius: 18px;
+      color: #064e35;
+      background: #e4f8ee;
+      border: 1px solid rgba(29,127,85,.18);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .complete.show { display: block; }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%) translateY(18px);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      max-width: min(420px, calc(100% - 40px));
+      padding: 12px 15px;
+      border-radius: 999px;
+      background: rgba(8,0,47,.91);
+      color: #fff;
+      box-shadow: 0 16px 40px rgba(0,0,0,.24);
+      font-size: 12px;
+      font-weight: 750;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 760px) {
+      .activity { border-radius: 0; }
+      .topbar { padding: 14px 16px 6px; gap: 10px; }
+      .eyebrow { font-size: 10px; padding: 5px 8px; }
+      h1 { font-size: 22px; max-width: 100%; }
+      .subtitle { display: none; }
+      .progress-card { min-width: 145px; padding: 9px; }
+      .progress-row { font-size: 10px; }
+      .stage { grid-template-columns: 1fr 1fr; gap: 10px; padding: 5px 14px 14px; }
+      .graphic { padding-left: 58px; border-radius: 20px; }
+      .graphic::before { left: 28px; }
+      .hotspot-shell { left: -48px; width: 40px; height: 40px; }
+      .hotspot { width: 29px; height: 29px; }
+      .details { border-radius: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="activity" aria-label="Ordered booking-status hotspot activity">
+    <span class="orb one"></span>
+    <span class="orb two"></span>
+
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l8 4v6c0 5-3 8-8 10-5-2-8-5-8-10V7l8-4z" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Booking update decision check
+        </span>
+        <h1>Review each booking status banner in order.</h1>
+        <p class="subtitle">Click the available + icon, read the guidance, then continue to the next banner. The activity completes after all six statuses are reviewed.</p>
+      </div>
+
+      <aside class="progress-card" aria-label="Progress">
+        <div class="progress-row"><span>Progress</span><span id="statusText">Start here</span></div>
+        <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
+        <div class="count"><strong id="progressNow">0</strong> of <strong id="progressTotal">6</strong> reviewed</div>
+      </aside>
+    </header>
+
+    <section class="stage">
+      <section class="graphic" aria-label="booking status banner hotspots">
+        <div class="graphic-head">
+          <h2 class="graphic-title">Fictional booking banner</h2>
+          <span class="next-chip" id="nextChip">Next: New</span>
+        </div>
+        <div class="banners" id="banners"></div>
+      </section>
+
+      <aside class="details" aria-live="polite">
+        <div class="details-top">
+          <div class="details-label">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4h12v16H6z" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Guidance panel
+          </div>
+          <h2 class="details-title" id="detailsTitle">Start with the first + icon</h2>
+          <p class="details-subtitle" id="detailsSubtitle">The next banner stays locked until the current one has been opened.</p>
+        </div>
+        <div class="details-body" id="detailsBody">
+          <div class="welcome">
+            <span class="badge proceed">Ready</span>
+            <section class="info-card" style="margin-top:14px;">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                How it works
+              </h3>
+              <p>Click the first plus icon to open the booking-state guidance. Move down the banners one at a time.</p>
+            </section>
+          </div>
+        </div>
+        <div class="footer">
+          <div>
+            <div class="hint" id="footerHint">Next available: New</div>
+            <div class="complete" id="completeMsg"><strong>Complete.</strong> All booking statuses have been reviewed. You can continue.</div>
+          </div>
+          <button class="next-btn" id="nextBtn" type="button">Open next</button>
+        </div>
+      </aside>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    // EDIT HERE LATER:
+    // Replace banner image paths with your final banner files, or keep the same filenames in /assets.
+    const statuses = [
+  {
+    "state": "New",
+    "banner": "assets/banner-01-New.png",
+    "alt": "New — synthetic workshop banner",
+    "badge": "New",
+    "badgeType": "proceed",
+    "proceed": "Follow the action shown below.",
+    "action": "Read the participant request and compare it with the workshop brief before choosing an action."
+  },
+  {
+    "state": "Paused",
+    "banner": "assets/banner-02-bookingupdate-ineligible.png",
+    "alt": "Paused — synthetic workshop banner",
+    "badge": "Paused",
+    "badgeType": "stop",
+    "proceed": "Follow the action shown below.",
+    "action": "A required session detail is missing. Ask for the missing detail and keep the request open."
+  },
+  {
+    "state": "Ready",
+    "banner": "assets/banner-03-bookingupdate-eligible.png",
+    "alt": "Ready — synthetic workshop banner",
+    "badge": "Ready",
+    "badgeType": "done",
+    "proceed": "Follow the action shown below.",
+    "action": "The session and date match the participant request. Send the updated booking summary."
+  },
+  {
+    "state": "Completed",
+    "banner": "assets/banner-04-Completed.png",
+    "alt": "Completed — synthetic workshop banner",
+    "badge": "Completed",
+    "badgeType": "updated",
+    "proceed": "Follow the action shown below.",
+    "action": "The updated summary has been sent. Review any new question as a separate request."
+  },
+  {
+    "state": "Unassigned",
+    "banner": "assets/banner-05-no-banner.png",
+    "alt": "Unassigned — synthetic workshop banner",
+    "badge": "Unassigned",
+    "badgeType": "caution",
+    "proceed": "Follow the action shown below.",
+    "action": "Choose a request category so the appropriate workshop team can review it."
+  },
+  {
+    "state": "Assigned",
+    "banner": "assets/banner-06-Assigned.png",
+    "alt": "Assigned — synthetic workshop banner",
+    "badge": "Assigned",
+    "badgeType": "review",
+    "proceed": "Follow the action shown below.",
+    "action": "A coordinator is already reviewing the request. Add relevant new details to the existing record."
+  }
+];
+
+    const state = {
+      currentIndex: 0,
+      opened: new Set(),
+      activeIndex: null,
+      completedSent: false
+    };
+
+    const bannersEl = document.getElementById("banners");
+    const detailsTitle = document.getElementById("detailsTitle");
+    const detailsSubtitle = document.getElementById("detailsSubtitle");
+    const detailsBody = document.getElementById("detailsBody");
+    const footerHint = document.getElementById("footerHint");
+    const nextBtn = document.getElementById("nextBtn");
+    const nextChip = document.getElementById("nextChip");
+    const completeMsg = document.getElementById("completeMsg");
+    const toast = document.getElementById("toast");
+    const progressNow = document.getElementById("progressNow");
+    const progressTotal = document.getElementById("progressTotal");
+    const meterFill = document.getElementById("meterFill");
+    const statusText = document.getElementById("statusText");
+
+    progressTotal.textContent = statuses.length;
+
+    function iconPlus() {
+      return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+    }
+
+    function iconCheck() {
+      return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+
+    function iconLock() {
+      return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2"/></svg>';
+    }
+
+    function renderBanners() {
+      bannersEl.innerHTML = statuses.map((item, index) => {
+        const locked = index > state.currentIndex;
+        const done = state.opened.has(index);
+        const active = state.activeIndex === index;
+        const label = done ? "Reviewed" : locked ? "Locked" : "Available";
+        const icon = done ? iconCheck() : locked ? iconLock() : "";
+        return `
+          <article class="banner ${locked ? "locked" : ""} ${done ? "done" : ""} ${active ? "active" : ""}">
+            <span class="hotspot-shell">
+              <button class="hotspot" type="button" data-index="${index}" aria-label="Open guidance for ${item.state}" ${locked ? "disabled" : ""}>${done ? iconCheck() : iconPlus()}</button>
+            </span>
+            <img class="banner-img" src="${item.banner}" alt="${item.alt}">
+            <span class="state-pill">${icon}${label}</span>
+          </article>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".hotspot").forEach(btn => {
+        btn.addEventListener("click", () => openStatus(Number(btn.dataset.index)));
+      });
+    }
+
+    function renderDetails(index) {
+      const item = statuses[index];
+      detailsTitle.textContent = item.state;
+      detailsSubtitle.textContent = "Review the decision and complete the agent action.";
+      detailsBody.innerHTML = `
+        <span class="badge ${item.badgeType}">${item.badge}</span>
+        <section class="info-card">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22c5-2 8-5 8-10V5l-8-3-8 3v7c0 5 3 8 8 10z" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Proceed?
+          </h3>
+          <p>${item.proceed}</p>
+        </section>
+        <section class="info-card">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Agent action
+          </h3>
+          <p>${item.action}</p>
+        </section>
+      `;
+    }
+
+    function openStatus(index) {
+      if (index > state.currentIndex) {
+        showToast(`Review ${statuses[state.currentIndex].state} first.`);
+        return;
+      }
+
+      state.activeIndex = index;
+      state.opened.add(index);
+
+      if (index === state.currentIndex && state.currentIndex < statuses.length - 1) {
+        state.currentIndex += 1;
+      }
+
+      renderDetails(index);
+      updateProgress();
+      renderBanners();
+
+      if (state.opened.size === statuses.length) {
+        sendCompletion();
+      }
+    }
+
+    function updateProgress() {
+      const reviewed = state.opened.size;
+      progressNow.textContent = reviewed;
+      meterFill.style.width = `${(reviewed / statuses.length) * 100}%`;
+
+      if (reviewed === statuses.length) {
+        statusText.textContent = "Complete";
+        nextChip.textContent = "Complete";
+        footerHint.textContent = "All statuses reviewed.";
+        nextBtn.disabled = true;
+        nextBtn.textContent = "Done";
+        completeMsg.classList.add("show");
+        return;
+      }
+
+      const next = statuses[state.currentIndex];
+      statusText.textContent = reviewed === 0 ? "Start here" : "In progress";
+      nextChip.textContent = `Next: ${next.state}`;
+      footerHint.textContent = `Next available: ${next.state}`;
+      nextBtn.disabled = false;
+      nextBtn.textContent = "Open next";
+    }
+
+    function sendCompletion() {
+      if (state.completedSent) return;
+      state.completedSent = true;
+      window.parent.postMessage({ type: 'complete' }, '*');
+    }
+
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (state.opened.size === statuses.length) return;
+      openStatus(state.currentIndex);
+    });
+
+    renderBanners();
+    updateProgress();
+    sendRiseSafeResize();
+
+    function sendRiseSafeResize() {
+      const height = Math.ceil(document.documentElement.scrollHeight || document.body.scrollHeight || 0);
+      try {
+        window.parent.postMessage({ type: "resize", height: height }, "*");
+      } catch (error) {
+        // Safe fallback for local testing.
+      }
+    }
+
+    window.addEventListener("load", sendRiseSafeResize);
+    window.addEventListener("resize", sendRiseSafeResize);
+    setTimeout(sendRiseSafeResize, 250);
+
+  </script>
+</body>
+</html>

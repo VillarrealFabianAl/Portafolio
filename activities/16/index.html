@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <title>Compare the Workshop Brief</title>
+
+  <style>
+    :root {
+      --indigo: #4A4AF4;
+      --black: #13131F;
+      --white: #FFFFFF;
+      --dark-indigo: #0A0340;
+
+      --gray-75: #2D3039;
+      --gray-65: #3F424E;
+      --gray-50: #5F6272;
+      --gray-35: #8B8F9C;
+      --gray-20: #BBBDC6;
+      --gray-02: #F8F8FA;
+
+      --light-indigo: #9DADF9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      overflow: hidden;
+      background: var(--gray-02);
+    }
+
+    body {
+      overflow: hidden;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: var(--gray-02);
+      color: var(--black);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    /* =====================================================
+       PRESENTATION SHELL
+    ====================================================== */
+
+    .presentation {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 5% 10%,
+          rgba(157, 173, 249, 0.28),
+          transparent 25%
+        ),
+        radial-gradient(
+          circle at 95% 90%,
+          rgba(74, 74, 244, 0.08),
+          transparent 28%
+        ),
+        var(--gray-02);
+    }
+
+    /* =====================================================
+       SLIDES
+    ====================================================== */
+
+    .slide {
+      position: absolute;
+      inset: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding:
+        clamp(20px, 3.2vw, 44px)
+        clamp(54px, 7vw, 92px)
+        clamp(32px, 4vw, 54px);
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform:
+        translateY(12px)
+        scale(0.985);
+
+      transition:
+        opacity 0.4s ease,
+        transform 0.4s ease,
+        visibility 0.4s;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+
+      transform:
+        translateY(0)
+        scale(1);
+
+      z-index: 2;
+    }
+
+    .slide-content {
+      width: min(100%, 900px);
+      margin: 0 auto;
+
+      text-align: center;
+    }
+
+    .slide.active .slide-content {
+      animation: contentEnter 0.55s ease both;
+    }
+
+    /* =====================================================
+       TITLE SLIDE
+    ====================================================== */
+
+    .title {
+      margin: 0;
+
+      font-size:
+        clamp(34px, 7vw, 86px);
+
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+
+      font-weight: 800;
+
+      color: var(--black);
+    }
+
+    .title-accent {
+      color: var(--indigo);
+    }
+
+    .title-rule {
+      width: 72px;
+      height: 5px;
+
+      margin: 22px auto 0;
+
+      border-radius: 999px;
+
+      background: var(--indigo);
+    }
+
+    /* =====================================================
+       CONTENT
+    ====================================================== */
+
+    .card {
+      width: min(100%, 860px);
+
+      margin: 0 auto;
+
+      padding:
+        clamp(22px, 3.2vw, 42px)
+        clamp(24px, 4.5vw, 56px);
+
+      border:
+        1px solid
+        rgba(19, 19, 31, 0.08);
+
+      border-radius: 24px;
+
+      background:
+        rgba(255, 255, 255, 0.96);
+
+      box-shadow:
+        0 16px 45px
+        rgba(19, 19, 31, 0.07);
+    }
+
+    .card::before {
+      content: "";
+
+      display: block;
+
+      width: 54px;
+      height: 4px;
+
+      margin:
+        -2px auto
+        clamp(14px, 2vw, 24px);
+
+      border-radius: 999px;
+
+      background: var(--indigo);
+    }
+
+    .statement {
+      max-width: 760px;
+      margin: 0 auto;
+
+      color: var(--gray-75);
+
+      font-size:
+        clamp(20px, 3.2vw, 38px);
+
+      line-height: 1.28;
+      letter-spacing: -0.025em;
+
+      font-weight: 600;
+    }
+
+    .content-title {
+      max-width: 760px;
+
+      margin:
+        0 auto
+        clamp(12px, 1.8vw, 20px);
+
+      color: var(--black);
+
+      font-size:
+        clamp(25px, 4.5vw, 52px);
+
+      line-height: 1.03;
+      letter-spacing: -0.045em;
+
+      font-weight: 800;
+    }
+
+    .body-copy {
+      max-width: 770px;
+      margin: 0 auto;
+
+      color: var(--gray-65);
+
+      font-size:
+        clamp(17px, 2.5vw, 29px);
+
+      line-height: 1.4;
+    }
+
+    strong {
+      color: var(--indigo);
+      font-weight: 800;
+    }
+
+    /* =====================================================
+       DECORATION
+    ====================================================== */
+
+    .shape {
+      position: absolute;
+
+      border-radius: 50%;
+
+      pointer-events: none;
+
+      animation:
+        floatShape
+        7s
+        ease-in-out
+        infinite;
+    }
+
+    .shape-one {
+      top: 13%;
+      left: 5%;
+
+      width: 70px;
+      height: 70px;
+
+      background:
+        rgba(74, 74, 244, 0.12);
+    }
+
+    .shape-two {
+      top: 18%;
+      right: 7%;
+
+      width: 36px;
+      height: 36px;
+
+      background:
+        rgba(157, 173, 249, 0.55);
+
+      animation-delay: -2s;
+    }
+
+    .shape-three {
+      bottom: 9%;
+      left: 11%;
+
+      width: 95px;
+      height: 95px;
+
+      background:
+        rgba(187, 189, 198, 0.22);
+
+      animation-delay: -4s;
+    }
+
+    /* =====================================================
+       SIDE NAVIGATION
+    ====================================================== */
+
+    .nav-button {
+      position: absolute;
+
+      top: 50%;
+
+      z-index: 20;
+
+      display: grid;
+      place-items: center;
+
+      width: 38px;
+      height: 38px;
+
+      padding: 0;
+
+      border:
+        1px solid
+        rgba(19, 19, 31, 0.1);
+
+      border-radius: 50%;
+
+      background:
+        rgba(255, 255, 255, 0.96);
+
+      color: var(--black);
+
+      box-shadow:
+        0 5px 18px
+        rgba(19, 19, 31, 0.09);
+
+      cursor: pointer;
+
+      transform: translateY(-50%);
+
+      transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .nav-button:hover {
+      background: var(--indigo);
+      color: var(--white);
+    }
+
+    .nav-button:active {
+      transform:
+        translateY(-50%)
+        scale(0.94);
+    }
+
+    .nav-button.previous {
+      left: 12px;
+    }
+
+    .nav-button.next {
+      right: 12px;
+    }
+
+    .nav-icon {
+      display: block;
+
+      font-size: 21px;
+      line-height: 1;
+
+      transform: translateY(-1px);
+    }
+
+    /* =====================================================
+       DOTS
+    ====================================================== */
+
+    .progress-dots {
+      position: absolute;
+
+      left: 50%;
+      bottom: 15px;
+
+      z-index: 20;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 7px;
+
+      transform: translateX(-50%);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+
+      padding: 0;
+
+      border: 0;
+      border-radius: 999px;
+
+      background: var(--gray-20);
+
+      cursor: pointer;
+
+      transition:
+        width 0.25s ease,
+        background 0.25s ease;
+    }
+
+    .dot.active {
+      width: 21px;
+
+      background: var(--indigo);
+    }
+
+    /* =====================================================
+       TOP PROGRESS BAR
+    ====================================================== */
+
+    .progress-track {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      z-index: 30;
+
+      width: 100%;
+      height: 3px;
+
+      background:
+        rgba(19, 19, 31, 0.06);
+    }
+
+    .progress-bar {
+      height: 100%;
+
+      background: var(--indigo);
+
+      transition: width 0.35s ease;
+    }
+
+    /* Rise 360 sizing: do not scale typography down based on iframe height. */
+
+    @media (max-height: 360px) {
+      .slide {
+        padding-top: 14px;
+        padding-bottom: 24px;
+        overflow-y: auto;
+      }
+
+      .card {
+        padding-top: 18px;
+        padding-bottom: 18px;
+      }
+
+      .shape {
+        display: none;
+      }
+
+      .progress-dots {
+        bottom: 6px;
+      }
+    }
+
+    /* =====================================================
+       MOBILE WIDTH
+    ====================================================== */
+
+    @media (max-width: 600px) {
+      .slide {
+        padding-left: 48px;
+        padding-right: 48px;
+      }
+
+      .card {
+        border-radius: 18px;
+      }
+
+      .nav-button.previous {
+        left: 8px;
+      }
+
+      .nav-button.next {
+        right: 8px;
+      }
+    }
+
+    /* =====================================================
+       ANIMATION
+    ====================================================== */
+
+    @keyframes contentEnter {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes floatShape {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-14px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main
+    class="presentation"
+    id="presentation"
+  >
+
+    <div
+      class="progress-track"
+      aria-hidden="true"
+    >
+      <div
+        class="progress-bar"
+        id="progressBar"
+      ></div>
+    </div>
+
+
+    <div
+      class="shape shape-one"
+      aria-hidden="true"
+    ></div>
+
+    <div
+      class="shape shape-two"
+      aria-hidden="true"
+    ></div>
+
+    <div
+      class="shape shape-three"
+      aria-hidden="true"
+    ></div>
+
+
+    <!-- =========================================
+         SLIDE 1
+    ========================================== -->
+
+    <section
+      class="slide active"
+      aria-hidden="false"
+    >
+      <div class="slide-content">
+
+        <h1 class="title">
+          Two things<br />
+          <span class="title-accent">
+            must be true
+          </span>
+        </h1>
+
+        <div
+          class="title-rule"
+          aria-hidden="true"
+        ></div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================================
+         SLIDE 2
+         No invented title
+    ========================================== -->
+
+    <section
+      class="slide"
+      aria-hidden="true"
+    >
+      <div class="slide-content">
+
+        <div class="card">
+
+          <p class="statement">
+            This fictional exercise asks you to compare the workshop date and session title —
+            give it the most practice time.
+          </p>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================================
+         SLIDE 3
+         Heading comes directly from source text
+    ========================================== -->
+
+    <section
+      class="slide"
+      aria-hidden="true"
+    >
+      <div class="slide-content">
+
+        <div class="card">
+
+          <h2 class="content-title">
+            In this fictional booking example, compare these two fields:
+          </h2>
+
+          <p class="body-copy">
+            the <strong>workshop date matches</strong>, and the
+            <strong>session title on the booking matches</strong>
+            the booking.
+          </p>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================================
+         SLIDE 4
+         Heading comes directly from source text
+    ========================================== -->
+
+    <section
+      class="slide"
+      aria-hidden="true"
+    >
+      <div class="slide-content">
+
+        <div class="card">
+
+          <h2 class="content-title">
+            Short framing module only —
+          </h2>
+
+          <p class="body-copy">
+            the two tests are taught in the two modules that follow,
+            date first, then session, using the fictional workshop brief.
+          </p>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- PREVIOUS -->
+
+    <button
+      class="nav-button previous"
+      id="previousButton"
+      type="button"
+      aria-label="Previous slide"
+    >
+      <span
+        class="nav-icon"
+        aria-hidden="true"
+      >
+        ‹
+      </span>
+    </button>
+
+
+    <!-- NEXT -->
+
+    <button
+      class="nav-button next"
+      id="nextButton"
+      type="button"
+      aria-label="Next slide"
+    >
+      <span
+        class="nav-icon"
+        aria-hidden="true"
+      >
+        ›
+      </span>
+    </button>
+
+
+    <!-- DOTS -->
+
+    <div
+      class="progress-dots"
+      id="progressDots"
+      aria-label="Slide navigation"
+    ></div>
+
+  </main>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      const slides =
+        Array.from(
+          document.querySelectorAll(".slide")
+        );
+
+      const previousButton =
+        document.getElementById("previousButton");
+
+      const nextButton =
+        document.getElementById("nextButton");
+
+      const progressDots =
+        document.getElementById("progressDots");
+
+      const progressBar =
+        document.getElementById("progressBar");
+
+      let currentSlide = 0;
+      let completionSent = false;
+
+
+      function createDots() {
+        slides.forEach((slide, index) => {
+          const dot =
+            document.createElement("button");
+
+          dot.type = "button";
+          dot.className = "dot";
+
+          dot.setAttribute(
+            "aria-label",
+            `Go to slide ${index + 1}`
+          );
+
+          dot.addEventListener(
+            "click",
+            () => showSlide(index)
+          );
+
+          progressDots.appendChild(dot);
+        });
+      }
+
+
+      function showSlide(index) {
+        if (index < 0) {
+          currentSlide =
+            slides.length - 1;
+        }
+        else if (index >= slides.length) {
+          currentSlide = 0;
+        }
+        else {
+          currentSlide = index;
+        }
+
+
+        slides.forEach(
+          (slide, slideIndex) => {
+            const isActive =
+              slideIndex === currentSlide;
+
+            slide.classList.toggle(
+              "active",
+              isActive
+            );
+
+            slide.setAttribute(
+              "aria-hidden",
+              String(!isActive)
+            );
+          }
+        );
+
+
+        const dots =
+          progressDots.querySelectorAll(".dot");
+
+        dots.forEach(
+          (dot, dotIndex) => {
+            const isActive =
+              dotIndex === currentSlide;
+
+            dot.classList.toggle(
+              "active",
+              isActive
+            );
+
+            dot.setAttribute(
+              "aria-current",
+              isActive ? "true" : "false"
+            );
+          }
+        );
+
+
+        const percent =
+          ((currentSlide + 1) /
+            slides.length) *
+          100;
+
+        progressBar.style.width =
+          `${percent}%`;
+
+        if (
+          currentSlide === slides.length - 1 &&
+          !completionSent
+        ) {
+          completionSent = true;
+
+          try {
+            window.parent.postMessage(
+              { type: "complete" },
+              "*"
+            );
+          }
+          catch (error) {
+            // Keep navigation working even if the parent blocks messaging.
+          }
+        }
+      }
+
+
+      function nextSlide() {
+        showSlide(currentSlide + 1);
+      }
+
+
+      function previousSlide() {
+        showSlide(currentSlide - 1);
+      }
+
+
+      nextButton.addEventListener(
+        "click",
+        nextSlide
+      );
+
+
+      previousButton.addEventListener(
+        "click",
+        previousSlide
+      );
+
+
+      document.addEventListener(
+        "keydown",
+        event => {
+          if (
+            event.key === "ArrowRight" ||
+            event.key === "PageDown"
+          ) {
+            event.preventDefault();
+            nextSlide();
+          }
+
+          if (
+            event.key === "ArrowLeft" ||
+            event.key === "PageUp"
+          ) {
+            event.preventDefault();
+            previousSlide();
+          }
+        }
+      );
+
+
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+
+      document.addEventListener(
+        "touchstart",
+        event => {
+          touchStartX =
+            event.changedTouches[0].screenX;
+        },
+        {
+          passive: true
+        }
+      );
+
+
+      document.addEventListener(
+        "touchend",
+        event => {
+          touchEndX =
+            event.changedTouches[0].screenX;
+
+          const distance =
+            touchEndX - touchStartX;
+
+          if (Math.abs(distance) < 45) {
+            return;
+          }
+
+          if (distance < 0) {
+            nextSlide();
+          }
+          else {
+            previousSlide();
+          }
+        },
+        {
+          passive: true
+        }
+      );
+
+
+      createDots();
+      showSlide(0);
+    })();
+  </script>
+
+</body>
+</html>
