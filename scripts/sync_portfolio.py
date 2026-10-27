@@ -10,6 +10,7 @@ import concurrent.futures
 import hashlib
 import pathlib
 import shutil
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -40,6 +41,17 @@ def one(path):
     dest.write_bytes(body)
     return (path, len(body))
 
+def retry_one(path):
+    last_error = None
+    for attempt in range(4):
+        try:
+            return one(path)
+        except (OSError, TimeoutError, urllib.error.URLError) as error:
+            last_error = error
+            if attempt < 3:
+                time.sleep(2 ** attempt)
+    raise last_error
+
 def main():
     paths = zlib.decompress(base64.b64decode(MANIFEST.read_text().strip())).decode().splitlines()
     paths = list(dict.fromkeys(paths))
@@ -50,8 +62,8 @@ def main():
         shutil.rmtree(STAGING)
     STAGING.mkdir()
     failures = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
-        futures = {pool.submit(one, path): path for path in paths}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+        futures = {pool.submit(retry_one, path): path for path in paths}
         for future in concurrent.futures.as_completed(futures):
             try:
                 future.result()
